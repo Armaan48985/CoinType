@@ -1,101 +1,116 @@
-import Image from "next/image";
+'use client';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [text, setText] = useState(
+    'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sapiente, eos cum esse laboriosam vero debitis velit, voluptatibus consectetur earum id error a odit quod. Similique tenetur minus officia unde iure'
+  );
+  const [started, setStarted] = useState(false);
+  const [charArray, setCharArray] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isCorrect, setIsCorrect] = useState(true);
+  const [typedText, setTypedText] = useState('');
+  const [errorIndexes, setErrorIndexes] = useState<number[]>([]);
+  const [pressed, setPressed] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  // Split the text into an array of characters
+  useEffect(() => {
+    setCharArray(text.split('').map((char) => (char === ' ' ? '' : char)));
+  }, [text]);
+
+  const handleKeyPress = (event: any) => {
+    const pressedKey = event.key;
+    setPressed(true);
+  
+    // Ignore non-character keys
+    if (pressedKey.length > 1 && pressedKey !== ' ') return;
+  
+    // Normalize both the input and the expected character to lowercase
+    const expectedChar = charArray[currentIndex].toLowerCase();
+    const inputChar = pressedKey.toLowerCase();
+  
+    if (pressedKey === ' ') {
+      event.preventDefault();
+    }
+  
+    if (!started) setStarted(true);
+  
+    if (expectedChar === inputChar) {
+      setTypedText(typedText + pressedKey);
+      setCurrentIndex(currentIndex + 1);
+      setIsCorrect(true);
+    } else {
+      setIsCorrect(false);
+      setCurrentIndex(currentIndex + 1); 
+      console.log('incorrect');
+    }
+
+    setPressed(false);
+  };
+  
+
+  // Add and remove the event listener for keydown
+  useEffect(() => {
+    if (started) {
+      window.addEventListener('keydown', handleKeyPress);
+    }
+
+    // Clean up the event listener when component unmounts or stops
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [currentIndex, charArray, typedText, started]);
+
+  // Handle start/restart button click
+  const handleStart = () => {
+    if (started) {
+      // Restart logic
+      setStarted(false);
+      setCurrentIndex(0);
+      setTypedText('');
+      setErrorIndexes([]);
+    } else {
+      setStarted(true);
+    }
+  };
+
+  return (
+    <div className="w-full min-h-screen">
+      <div className="p-10 flex-between px-20">
+        <h1 className="font-mono text-5xl">MonkeyType</h1>
+
+        <div>
+          {/* Start/Restart button */}
+          <button
+            onClick={handleStart}
+            className="bg-[#468286] text-white px-6 py-2 rounded-md"
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {started ? 'Restart' : 'Start'}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <div className="flex-center flex-col h-[70vh]">
+        {/* Text display */}
+        <div className="max-w-[1100px] mb-20 flex flex-wrap">
+          {charArray.map((char: string, index: number) => (
+                <span
+                key={index}
+                className={`mr-1 text-2xl ${
+                  index === currentIndex && !pressed
+                    ? 'text-yellow-500' // Highlight current letter in yellow
+                    : index < currentIndex
+                    ? errorIndexes.includes(index)
+                      ? 'text-red-500' // Incorrect letters in red
+                      : 'text-green-500' // Correct letters in green
+                    : 'text-white' // Unreached letters in white
+                } ${index === currentIndex && !isCorrect ? 'bg-red-500' : 'bg-transparent'} py-1 px-[2px] rounded`}
+              >
+                {char}
+              </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
