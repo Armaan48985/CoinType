@@ -12,75 +12,110 @@ export default function Home() {
   const [typedText, setTypedText] = useState('');
   const [errorIndexes, setErrorIndexes] = useState<number[]>([]);
   const [pressed, setPressed] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(15);
+  const [remainingTime, setRemainingTime] = useState(15);
 
-  // Split the text into an array of characters
   useEffect(() => {
     setCharArray(text.split('').map((char) => (char === ' ' ? '' : char)));
   }, [text]);
 
   const handleKeyPress = (event: any) => {
+    if(!started || remainingTime == 0) return;
+
     const pressedKey = event.key;
+
+    if (pressedKey === 'Backspace') {
+      event.preventDefault();
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+        setTypedText(typedText.slice(0, -1));
+        setErrorIndexes(errorIndexes.filter(index => index !== currentIndex - 1));
+      }
+      return;
+    }
+
+    if (pressedKey.length > 1 && pressedKey !== ' ') return;
     setPressed(true);
   
-    // Ignore non-character keys
-    if (pressedKey.length > 1 && pressedKey !== ' ') return;
-  
-    // Normalize both the input and the expected character to lowercase
-    const expectedChar = charArray[currentIndex].toLowerCase();
-    const inputChar = pressedKey.toLowerCase();
+    const expectedChar = charArray[currentIndex];
+    const inputChar = pressedKey;
   
     if (pressedKey === ' ') {
       event.preventDefault();
     }
-  
-    if (!started) setStarted(true);
   
     if (expectedChar === inputChar) {
       setTypedText(typedText + pressedKey);
       setCurrentIndex(currentIndex + 1);
       setIsCorrect(true);
     } else {
+      setErrorIndexes([...errorIndexes, currentIndex]);
       setIsCorrect(false);
       setCurrentIndex(currentIndex + 1); 
-      console.log('incorrect');
     }
 
     setPressed(false);
   };
   
 
-  // Add and remove the event listener for keydown
+
   useEffect(() => {
     if (started) {
       window.addEventListener('keydown', handleKeyPress);
     }
 
-    // Clean up the event listener when component unmounts or stops
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [currentIndex, charArray, typedText, started]);
 
-  // Handle start/restart button click
+
   const handleStart = () => {
     if (started) {
-      // Restart logic
       setStarted(false);
       setCurrentIndex(0);
       setTypedText('');
       setErrorIndexes([]);
+      setRemainingTime(15);
+      console.log('restarting')
     } else {
       setStarted(true);
+      setRemainingTime(selectedTime);
+      startTimer();
+      console.log('starting')
     }
+  };
+
+  console.log(started)
+
+  const startTimer = () => {
+    console.log('im inside start timer')
+    const timerInterval = setInterval(() => {
+      setRemainingTime(prevTime => {
+        if (prevTime === 1) {
+          clearInterval(timerInterval);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
   };
 
   return (
     <div className="w-full min-h-screen">
       <div className="p-10 flex-between px-20">
-        <h1 className="font-mono text-5xl">MonkeyType</h1>
+        <h1 className="font-mono text-5xl">CoinType</h1>
+
+        <div className='bg-gray-800 rounded-2xl'>
+          <div className='flex gap-8 py-1 px-8'>
+            <button className={`hover:text-yellow-500 ${selectedTime == 15 ? 'text-yellow-500' : ''}`} onClick={() => setSelectedTime(15)}>15s</button>
+            <button className={`hover:text-yellow-500 ${selectedTime == 30 ? 'text-yellow-500' : ''}`} onClick={() => setSelectedTime(30)}>30s</button>
+            <button className={`hover:text-yellow-500 ${selectedTime == 60 ? 'text-yellow-500' : ''}`} onClick={() => setSelectedTime(60)}>60s</button>
+            <button className={`hover:text-yellow-500 ${selectedTime == 120 ? 'text-yellow-500' : ''}`} onClick={() =>setSelectedTime(120)}>120s</button>
+          </div>   
+        </div>
 
         <div>
-          {/* Start/Restart button */}
           <button
             onClick={handleStart}
             className="bg-[#468286] text-white px-6 py-2 rounded-md"
@@ -91,19 +126,21 @@ export default function Home() {
       </div>
 
       <div className="flex-center flex-col h-[70vh]">
-        {/* Text display */}
-        <div className="max-w-[1100px] mb-20 flex flex-wrap">
+        <div className="max-w-[1100px] mb-20 flex flex-wrap relative">
+        <div className="absolute top-[-3rem] left-[0] right-0 text-slate-200 text-3xl">
+          {remainingTime}
+        </div>
           {charArray.map((char: string, index: number) => (
                 <span
                 key={index}
                 className={`mr-1 text-2xl ${
                   index === currentIndex && !pressed
-                    ? 'text-yellow-500' // Highlight current letter in yellow
+                    ? 'bg-yellow-500'
                     : index < currentIndex
                     ? errorIndexes.includes(index)
-                      ? 'text-red-500' // Incorrect letters in red
-                      : 'text-green-500' // Correct letters in green
-                    : 'text-white' // Unreached letters in white
+                      ? 'text-red-500'
+                      : 'text-green-500'
+                    : 'text-white'
                 } ${index === currentIndex && !isCorrect ? 'bg-red-500' : 'bg-transparent'} py-1 px-[2px] rounded`}
               >
                 {char}
