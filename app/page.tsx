@@ -1,4 +1,5 @@
 'use client';
+import Navbar from '@/components/Navbar';
 import ResultBox from '@/components/ResultBox';
 import TypeContent from '@/components/TypeContent';
 import VisualKeyboard from '@/components/VisualKeyboard';
@@ -7,9 +8,7 @@ import { FaCoins } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 
 export default function Home() {
-  const [text, setText] = useState(` Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod est iste cumque modi consequatur nam possimus facilis iusto vel aperiam neque, architecto reiciendis
-    ,laboriosam exercitationem debitis facere? Aperiam reprehenderit sapiente, voluptate explicabo voluptates laborum ratione, tempore odit non labore ipsam 
-    culpa dolores magnam cupiditate, sint ut ipsa amet rem totam`)
+  const [text, setText] = useState(`Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod est iste cumque modi consequatur nam possimus facilis iusto vel aperiam neque, architecto reiciendis, laboriosam exercitationem debitis facere? Aperiam reprehenderit sapiente, voluptate explicabo voluptates laborum ratione, tempore odit non labore ipsam culpa dolores magnam cupiditate, sint ut ipsa amet rem totam`)
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -23,10 +22,23 @@ export default function Home() {
   const [keyPressed, setKeyPressed] = useState<string | null>(null);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showResult, setShowResult] = useState(true);
+  const [upward, setUpward] = useState(0);
 
   useEffect(() => {
-    setCharArray(text.split('').map((char) => (char === ' ' ? '' : char)));
-  }, [text]);
+    const maxCharsPerLine = 58; // Define max characters per line
+    const formattedCharArray: string[] = [];
+  
+    // Split the text into lines of maxCharsPerLine
+    for (let i = 0; i < text.length; i += maxCharsPerLine) {
+      const line = text.slice(i, i + maxCharsPerLine);
+      // Ensure the line only contains 58 characters or less
+      formattedCharArray.push(...line.split('').map((char) => (char === ' ' ? '' : char)));
+    }
+  
+    setCharArray(formattedCharArray);
+  }, []);
+  
+  
 
   const handleKeyPress = (event: any) => {
     if (!started || remainingTime === 0) return;
@@ -106,6 +118,7 @@ export default function Home() {
        setTypedText('');
        setErrorIndexes([]);
        setRemainingTime(selectedTime);
+       setUpward(0);
     } else {
        setStarted(true);
        setRemainingTime(selectedTime);
@@ -141,31 +154,17 @@ export default function Home() {
   };
 
 
+  console.log(currentIndex)
 
 
   return (
     <div className="w-full">
-      <div className="p-10 flex-between px-28 mt-10 text-gray-300">
-        <h1 className="font-mono text-5xl flex-center gap-2">CoinType <span className='text-3xl mt-2 text-[#ffb700] text-opacity-70'><FaCoins /></span></h1>
-   
-        <div className='bg-[var(--primary-blue)] rounded-2xl'>
-          <div className='flex gap-8 py-1 px-8'>
-            <button className={`hover:text-yellow-500 font-semibold ${selectedTime == 15 ? 'text-yellow-500' : ''}`} onClick={() => setSelectedTime(15)}>15s</button>
-            <button className={`hover:text-yellow-500 font-semibold ${selectedTime == 30 ? 'text-yellow-500' : ''}`} onClick={() => setSelectedTime(30)}>30s</button>
-            <button className={`hover:text-yellow-500 font-semibold ${selectedTime == 60 ? 'text-yellow-500' : ''}`} onClick={() => setSelectedTime(60)}>60s</button>
-            <button className={`hover:text-yellow-500 font-semibold ${selectedTime == 120 ? 'text-yellow-500' : ''}`} onClick={() =>setSelectedTime(120)}>120s</button>
-          </div>   
-        </div>
-
-        <div>
-          <button
-            onClick={handleStart}
-            className="bg-[#073b4c] uppercase  px-6 py-2 rounded-md"
-          >
-            {started ? 'Restart' : 'Start'}
-          </button>
-        </div>
-      </div>
+        <Navbar 
+          selectedTime={selectedTime} 
+          setSelectedTime={setSelectedTime} 
+          handleStart={handleStart} 
+          started={started}
+        />
 
         <TypeContent 
           started={started}
@@ -176,9 +175,13 @@ export default function Home() {
           pressed={pressed} 
           errorIndexes={errorIndexes} 
           isCorrect={isCorrect}
+          upward={upward}
+          setUpward={setUpward}
         />
 
+        <div className='bg-[var(--background)] z-10 h-[500px]'>
         <VisualKeyboard keyPressed={keyPressed}/>
+        </div>
 
         {showResult && (
           <ResultBox setShowResult={setShowResult} typedText={typedText} remainingTime={remainingTime} selectedTime={selectedTime} incorrectCount={incorrectCount}/>

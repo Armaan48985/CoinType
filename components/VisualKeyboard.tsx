@@ -7,7 +7,7 @@ export default function VisualKeyboard({ keyPressed }: { keyPressed: string | nu
     ];
   
     return (
-      <div className="mt-8 flex flex-col items-center text-sm">
+      <div className="flex flex-col items-center text-sm pt-6">
         {rows.map((row, rowIndex) => (
           <div key={rowIndex} className="flex justify-center mb-1">
             {row.map((key) => (
