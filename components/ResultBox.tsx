@@ -1,7 +1,10 @@
 import React from 'react'
+import { FaRedoAlt } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io'
+import { MdOutlineNavigateNext } from 'react-icons/md';
+import { TooltipDemo } from './self/ToolTip';
 
-const ResultBox = ({setShowResult, typedText, remainingTime, selectedTime, incorrectCount}:any) => {
+const ResultBox = ({setShowResult, typedText, remainingTime, selectedTime, incorrectCount, restart}:any) => {
 
     
   const calculateWPM = () => {
@@ -16,12 +19,11 @@ const ResultBox = ({setShowResult, typedText, remainingTime, selectedTime, incor
     const calculateAccuracy = () => {
         const totalChars = typedText.length;
         const correctChars = totalChars - incorrectCount; 
-        console.log(correctChars, totalChars, incorrectCount);
         return totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
     };
 
 
-  return (
+     return (
         <div className="fixed inset-0 bg-black font-mono bg-opacity-70 flex items-center justify-center z-50">
             <div className="relative rounded-xl bg-gray-800 p-6 shadow-2xl flex justify-center flex-col w-[380px] min-h-[280px] max-w-lg mx-auto  border-gray-600">
               <div className='flex-between'>
@@ -43,9 +45,30 @@ const ResultBox = ({setShowResult, typedText, remainingTime, selectedTime, incor
                   <p className="text-2xl font-bold text-blue-400">{calculateAccuracy()}%</p>
                 </div>
               </div>
+
+              <div className='flex-center gap-10 mt-7'>
+                  <div 
+                    onClick={() => {setShowResult(false); restart()}}
+                    className=''
+                  >
+                    <TooltipDemo 
+                      hoverText={<FaRedoAlt/>} 
+                      tooltipText='Restart Test' 
+                      hoverClass='border-none rounded-lg bg-white text-black px-8 hover:bg-white hover:scale-105 duration-500'
+                    />
+                  </div>
+
+                  <div>
+                    <TooltipDemo 
+                      hoverText={<MdOutlineNavigateNext />} 
+                      tooltipText='Next Test'
+                      hoverClass='border-none text-xl font-bold rounded-lg bg-white text-black px-8 hover:bg-white hover:scale-105 duration-500'
+                    />
+                  </div>
+              </div>
             </div>
         </div>
-  )
+     )
 }
 
 export default ResultBox

@@ -1,14 +1,22 @@
 'use client';
 import Navbar from '@/components/Navbar';
 import ResultBox from '@/components/ResultBox';
+import { TooltipDemo } from '@/components/self/ToolTip';
 import TypeContent from '@/components/TypeContent';
 import VisualKeyboard from '@/components/VisualKeyboard';
 import { useEffect, useState } from 'react';
-import { FaCoins } from 'react-icons/fa';
+import { FaCoins, FaRedoAlt } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
+import { MdOutlineNavigateNext } from 'react-icons/md';
+import { RiArrowRightSLine } from "react-icons/ri";
+
+export type textObject = {
+  chars: string[]; // Array of characters for each line/block
+};
 
 export default function Home() {
   const [text, setText] = useState(`Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod est iste cumque modi consequatur nam possimus facilis iusto vel aperiam neque, architecto reiciendis, laboriosam exercitationem debitis facere? Aperiam reprehenderit sapiente, voluptate explicabo voluptates laborum ratione, tempore odit non labore ipsam culpa dolores magnam cupiditate, sint ut ipsa amet rem totam`)
+  const [finalText, setFinalText] = useState<textObject[]>([])
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -16,33 +24,33 @@ export default function Home() {
   const [typedText, setTypedText] = useState('');
   const [errorIndexes, setErrorIndexes] = useState<number[]>([]);
   const [pressed, setPressed] = useState(false);
-  const [selectedTime, setSelectedTime] = useState(8);
+  const [selectedTime, setSelectedTime] = useState(15);
   const [remainingTime, setRemainingTime] = useState(15);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [keyPressed, setKeyPressed] = useState<string | null>(null);
   const [incorrectCount, setIncorrectCount] = useState(0);
-  const [showResult, setShowResult] = useState(true);
+  const [showResult, setShowResult] = useState(false);
   const [upward, setUpward] = useState(0);
 
   useEffect(() => {
-    const maxCharsPerLine = 58; // Define max characters per line
-    const formattedCharArray: string[] = [];
-  
-    // Split the text into lines of maxCharsPerLine
-    for (let i = 0; i < text.length; i += maxCharsPerLine) {
-      const line = text.slice(i, i + maxCharsPerLine);
-      // Ensure the line only contains 58 characters or less
-      formattedCharArray.push(...line.split('').map((char) => (char === ' ' ? '' : char)));
+    const maxCharsPerBlock = 60;
+    const formattedText: textObject[] = [];
+
+    for (let i = 0; i < text.length; i += maxCharsPerBlock) {
+      const block = text.slice(i, i + maxCharsPerBlock).split(''); 
+      formattedText.push({ chars: block }); 
     }
-  
-    setCharArray(formattedCharArray);
-  }, []);
-  
-  
+
+    setFinalText(formattedText);
+
+    setCharArray(text.split(''));
+
+  }, [text])
+
+  console.log(started)
 
   const handleKeyPress = (event: any) => {
-    if (!started || remainingTime === 0) return;
-
+    if (remainingTime === 0) return;
     const pressedKey = event.key;
     setKeyPressed(pressedKey);
 
@@ -60,17 +68,12 @@ export default function Home() {
         return;
     }
 
-    // Check for non-character keys
     if (pressedKey.length > 1 && pressedKey !== ' ') return;
-  
-    setPressed(true);
-
+    
     const expectedChar = charArray[currentIndex];
     const inputChar = pressedKey;
-
     if (pressedKey === ' ') {
-        console.log('Space key pressed');
-        if (expectedChar === '') {
+        if (expectedChar === ' ') {
             setTypedText(typedText + ' ');
             setCurrentIndex(currentIndex + 1);
             setIsCorrect(true);
@@ -83,6 +86,15 @@ export default function Home() {
         setPressed(false);
         return;
     }
+
+    if(!started) {
+      setStarted(true);
+      handleStart(started)
+    }
+
+    setPressed(true);
+
+
 
     if (expectedChar === inputChar) {
         setTypedText(typedText + pressedKey);
@@ -98,20 +110,28 @@ export default function Home() {
     setPressed(false);
 };
 
-  useEffect(() => {
-    if (started) {
-      window.addEventListener('keydown', handleKeyPress);
-    } else {
-      window.removeEventListener('keydown', handleKeyPress);
+  const restart = () => {
+    if(started){
+      clearInterval(timerInterval!);
+      setStarted(false);
+      setCurrentIndex(0);
+      setTypedText('');
+      setErrorIndexes([]);
+      setRemainingTime(selectedTime);
+      setUpward(0);
     }
+  }
+
+  useEffect(() => {
+      window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [currentIndex, charArray, typedText, started]);
 
 
-  const handleStart = () => {
-    if (started) {
+  const handleStart = (star:boolean) => {
+    if (star) {
        clearInterval(timerInterval!);
        setStarted(false);
        setCurrentIndex(0);
@@ -123,6 +143,7 @@ export default function Home() {
        setStarted(true);
        setRemainingTime(selectedTime);
        startTimer();
+       console.log('again wrong')
     }
  };
  
@@ -153,10 +174,6 @@ export default function Home() {
     }
   };
 
-
-  console.log(currentIndex)
-
-
   return (
     <div className="w-full">
         <Navbar 
@@ -170,7 +187,7 @@ export default function Home() {
           started={started}
           remainingTime={remainingTime} 
           selectedTime={selectedTime} 
-          charArray={charArray}
+          finalText={finalText}
           currentIndex={currentIndex} 
           pressed={pressed} 
           errorIndexes={errorIndexes} 
@@ -179,12 +196,33 @@ export default function Home() {
           setUpward={setUpward}
         />
 
-        <div className='bg-[var(--background)] z-10 h-[500px]'>
-        <VisualKeyboard keyPressed={keyPressed}/>
+        <div className='bg-[var(--background)] z-10 h-[200px]'>
+          <VisualKeyboard keyPressed={keyPressed}/>
         </div>
 
+        <div className='flex-center gap-6 mt-7'>
+                  <div 
+                    onClick={() => {setShowResult(false); restart()}}
+                    className=''
+                  >
+                    <TooltipDemo 
+                      hoverText={<FaRedoAlt/>} 
+                      tooltipText='Restart Test' 
+                      hoverClass='border-none rounded-lg bg-[#073b4c] text-white px-4 duration-500'
+                    />
+                  </div>
+
+                  <div>
+                    <TooltipDemo 
+                      hoverText={<RiArrowRightSLine />} 
+                      tooltipText='Next Test'
+                      hoverClass='border-none rounded-lg text-2xl font-bold bg-[#073b4c] text-white px-3 duration-500'
+                    />
+                  </div>
+              </div>
+
         {showResult && (
-          <ResultBox setShowResult={setShowResult} typedText={typedText} remainingTime={remainingTime} selectedTime={selectedTime} incorrectCount={incorrectCount}/>
+          <ResultBox setShowResult={setShowResult} typedText={typedText} remainingTime={remainingTime} selectedTime={selectedTime} incorrectCount={incorrectCount} restart={restart}/>
         )}
 
     </div>
