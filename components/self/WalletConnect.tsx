@@ -1,9 +1,11 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { RiLogoutBoxRLine } from 'react-icons/ri';
 
 const WalletConnect = () => {
   const [openDialog, setOpenDialog] = useState(false);
+  
   
   return (
     <ConnectButton.Custom>
@@ -31,7 +33,7 @@ const WalletConnect = () => {
                 type="button"
                 className="bg-[#073b4c] font-mono px-6 py-2 rounded-md text-white"
               >
-                Start a Battle
+                Start a Battle <Image src='/battle.png' alt='sword' width={50} height={50}/>
               </button>
             ) : isWrongNetwork ? (
               <button
@@ -43,8 +45,15 @@ const WalletConnect = () => {
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <div className="bg-[#073b4c] font-mono px-6 py-2 rounded-md text-white hover:scale-105 duration-500 cursor-pointer">
-                  Start a Battle
+                <div className="bg-[#073b4c] flex-center gap-2 font-mono px-4 py-2 rounded-md text-white hover:scale-105 duration-500 cursor-pointer" onClick={StartBattleDialog}>
+                  Start a Battle 
+                  <Image 
+                    src='/battle.png' 
+                    alt='sword' 
+                    width={15} 
+                    height={1}
+                    className='w-[20px] h-[20px]'
+                  />
                 </div>
                 <button
                   onClick={() => setOpenDialog(!openDialog)}
