@@ -2,10 +2,11 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 import { RiLogoutBoxRLine } from 'react-icons/ri';
+import BattleDialog from './BattleDialog';
 
 const WalletConnect = () => {
   const [openDialog, setOpenDialog] = useState(false);
-  
+  const [openBattleDialog, setOpenBattleDialog] = useState(true);
   
   return (
     <ConnectButton.Custom>
@@ -31,9 +32,16 @@ const WalletConnect = () => {
               <button
                 onClick={openConnectModal}
                 type="button"
-                className="bg-[#073b4c] font-mono px-6 py-2 rounded-md text-white"
+                className="bg-[#073b4c] flex-center gap-2 font-mono px-6 py-2 rounded-md text-white"
               >
-                Start a Battle <Image src='/battle.png' alt='sword' width={50} height={50}/>
+               Start a Battle 
+                  <Image 
+                    src='/battle.png' 
+                    alt='sword' 
+                    width={15} 
+                    height={1}
+                    className='w-[20px] h-[20px]'
+                  />
               </button>
             ) : isWrongNetwork ? (
               <button
@@ -45,7 +53,7 @@ const WalletConnect = () => {
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <div className="bg-[#073b4c] flex-center gap-2 font-mono px-4 py-2 rounded-md text-white hover:scale-105 duration-500 cursor-pointer" onClick={StartBattleDialog}>
+                <div className="bg-[#073b4c] flex-center gap-2 font-mono px-4 py-2 rounded-md text-white hover:scale-105 duration-500 cursor-pointer" onClick={() => setOpenBattleDialog(true)}>
                   Start a Battle 
                   <Image 
                     src='/battle.png' 
@@ -100,6 +108,12 @@ const WalletConnect = () => {
                 )}
 
               </div>
+            )}
+
+            {openBattleDialog && (
+                <div>
+                  <BattleDialog setOpenBattleDialog={setOpenBattleDialog}/>
+                </div>
             )}
           </div>
         );
