@@ -19,6 +19,7 @@ const ResultBox = ({setShowResult, typedText, remainingTime, selectedTime, incor
     const calculateAccuracy = () => {
         const totalChars = typedText.length;
         const correctChars = totalChars - incorrectCount; 
+        if(correctChars <= 0) return 0;
         return totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
     };
 

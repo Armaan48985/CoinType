@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { RiLogoutBoxRLine } from 'react-icons/ri';
 import BattleDialog from './BattleDialog';
 
-const WalletConnect = () => {
+const WalletConnect = ({openBattleDialog, setOpenBattleDialog}:any) => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [openBattleDialog, setOpenBattleDialog] = useState(true);
+
   
   return (
     <ConnectButton.Custom>
@@ -53,7 +53,10 @@ const WalletConnect = () => {
               </button>
             ) : (
               <div className="flex items-center gap-2">
-                <div className="bg-[#073b4c] flex-center gap-2 font-mono px-4 py-2 rounded-md text-white hover:scale-105 duration-500 cursor-pointer" onClick={() => setOpenBattleDialog(true)}>
+                <div 
+                  className="bg-[#073b4c] flex-center gap-2 font-mono px-4 py-2 rounded-md text-white hover:scale-105 duration-500 cursor-pointer" 
+                  onClick={() => setOpenBattleDialog(true)}
+                >
                   Start a Battle 
                   <Image 
                     src='/battle.png' 

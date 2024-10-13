@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useAccount, useSendTransaction } from 'wagmi';
 import { parseEther } from 'viem';
-import { checkInviteCode, sendCode } from '../supbaseFunc';
+import { checkInviteCode, sendCode } from '../ImportantFunc';
+
 
 type BattleDataType = {
     invite_code: string;
@@ -26,7 +27,7 @@ export default function StartBattle() {
         setInviteCode(code);
         console.log(code)
         if(code && address && amount){
-            sendCode({code, address, amount});
+            // sendCode({code, address, amount});
         }
     }
   }, [isSuccess, isPending, data])
@@ -64,9 +65,9 @@ export default function StartBattle() {
     if(checkCode){
         console.log('Joining battle with code:', checkCode);
 
-        const data = await checkInviteCode(checkCode);
+        // const data = await checkInviteCode(checkCode);
 
-        if(data) setBattleData(data[0]);
+        // if(data) setBattleData(data[0]);
     }
   }
 

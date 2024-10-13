@@ -1,16 +1,166 @@
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RiCloseLine } from 'react-icons/ri';
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { Button } from '../ui/button';
 import NetworkButton from './NetworkButton';
+import { Span } from 'next/dist/trace';
+import { checkInviteCode, sendCode } from '@/app/ImportantFunc';
+import { useAccount, useSendTransaction } from 'wagmi';
+import { parseEther } from 'viem';
+import { MdContentCopy, MdFileCopy } from 'react-icons/md';
+import { Input } from '../ui/input';
+import {ethers} from 'ethers';
+
+
+type BattleDataType = {
+  invite_code: string;
+  eth_amount: string;
+  player1: string;
+  started_by: string;
+  time: string;
+  chain: string;
+}
 
 const BattleDialog = ({setOpenBattleDialog}:any) => {
   const [step, setStep] = useState('initial');
   const [ethAmount, setEthAmount] = useState('');
   const [time, setTime] = useState('');
   const [inviteCode, setInviteCode] = useState('');
-  const [battleDetails, setBattleDetails] = useState(null); 
+  const [enteredInviteCode, setEnteredInviteCode] = useState('');
+  const [battleDetails, setBattleDetails] = useState<BattleDataType>(); 
+  const [invalid, setInvalid] = useState(false);
+  const [inviteCodeError, setInviteCodeError] = useState(false);
+  const { sendTransaction,isPending, isSuccess, isError, error, data, submittedAt, } = useSendTransaction();
+  const {address, isConnected, chain} = useAccount();
+  const [isStartBattleSuccess, setIsStartBattleSuccess] = useState(false);
+  const [isJoinBattleSuccess, setIsJoinBattleSuccess] = useState(false);
+  
+
+  const startBattle = async () => {
+    if (!ethAmount || isNaN(Number(ethAmount)) || parseFloat(ethAmount) <= 0) {
+      console.error('Please enter a valid amount.');
+      return false;
+    }
+  
+    try {
+      const {hash} = await sendTransaction({
+          to: '0xb50c2a93683b8dA575cD8f93602f3dB89a27A1e4',
+          value: parseEther(ethAmount),
+      });
+  
+      if(hash) return true;;
+    } catch (error) {
+      console.error('Error in startBattle:', error);
+      return false;
+    }
+  };
+  const startBattleConfirm = async () => {
+    if (!ethAmount || !time) {
+      setInvalid(true);
+      return;
+    }
+  
+    try {
+      const a : boolean = startBattle();
+      if(a){
+        console.log('isSueccess:', isSuccess) 
+        setIsStartBattleSuccess(true);
+      }
+    } catch (err) {
+      console.error('Error confirming start battle:', err);
+    }
+  };
+
+  useEffect(() => {
+    console.log('isStartBattleSuccess:', isStartBattleSuccess);
+    if (isStartBattleSuccess && address && chain) {
+      const code = generateInviteCode();
+      setInviteCode(code);
+      console.log('Generated Invite Code:', code);
+      console.log('lskdjfjlksjf')
+      sendCode({
+        code,
+        address,
+        amount: ethAmount,
+        time,
+        chainName: chain?.name,
+      });
+  
+      setStep('confirmedStartBattle');
+    }
+  }, [isStartBattleSuccess, address]);
+  
+  
+    
+  
+  const checkInviteCodee = async () => {
+    if (!enteredInviteCode.trim() || !address) {
+      setInviteCodeError(true);
+      return;
+    }
+  
+    try {
+      const data = await checkInviteCode(enteredInviteCode, address);
+      if (data && data?.length > 0) {
+        setInviteCodeError(false);
+        setEnteredInviteCode('');
+        setBattleDetails(data[0]);
+        setStep('joiningDetails');
+      } else {
+        setInviteCodeError(true);
+      }
+    } catch (error) {
+      console.error('Error checking invite code:', error);
+      setInviteCodeError(true);
+    }
+  };
+  
+
+  const confirmJoinBattle = () => {
+
+  }
+  
+  console.log(battleDetails)
+
+  // useEffect(() => {
+  //   if(isSuccess){
+  //       console.log(data)
+  //       const code = generateInviteCode();
+  //       setInviteCode(code);
+  //       console.log(code)
+        // if(code && address && ethAmount && chain){
+        //     sendCode({code, address, amount: ethAmount, chainName: chain.name});
+        // }
+  //   }
+  // }, [isSuccess, isPending, data])
+  
+
+  const generateInviteCode = () => {
+    console.log('Generating invite code...');
+    return Math.random().toString(36).substring(2, 10).toUpperCase();
+  };
+
+
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText('mf')
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+      })
+      .catch((err) => console.error('Failed to copy text: ', err));
+  };
+
+  const handleBackButton = () => {
+    if (step === 'startBattle' || step === 'joinBattle') {
+      setStep('initial');
+    }
+    else if(step == 'joiningDetails'){
+      setStep('joinBattle');
+    }
+  };
+
 
   const renderDialogContent = () => {
     switch (step) {
@@ -22,13 +172,13 @@ const BattleDialog = ({setOpenBattleDialog}:any) => {
             </div>
             <div className='flex-center gap-10 mt-14 text-white font-bold'>
                 <button
-                  className="py-2 px-10 rounded-md bg-[#D7B633] border-2 border-transparent hover:scale-105 hover:text-red-500 hover:border-gray-400 box-border duration-500"
+                  className="py-3 px-10 rounded-md bg-[#D7B633] border-2 border-transparent hover:scale-105 hover:text-red-500 hover:border-yellow-300 hover:font-extrabold box-border duration-500"
                   onClick={() => setStep('startBattle')}
                 >
                   Start a Battle
                 </button>
                 <button
-                  className="py-2 px-10 rounded-md bg-[#D7B633] border-2 border-transparent hover:scale-105 hover:text-red-500 hover:border-gray-400 box-border duration-500"
+                  className="py-3 px-10 rounded-md bg-[#D7B633] border-2 border-transparent hover:scale-105 hover:text-red-500 hover:border-yellow-300 hover:font-extrabold box-border duration-500"
                   onClick={() => setStep('joinBattle')}
                 >
                   Join a Battle
@@ -39,72 +189,117 @@ const BattleDialog = ({setOpenBattleDialog}:any) => {
         );
       case 'startBattle':
         return (
-          <div className='mt-6'>
-            <div className="mb-4 flex flex-col gap-4">
-              <label className="font-serif text-gray-800 text-sm font-semibold">Time limit 0f battle(sec):</label>
-              <div className='flex gap-5 ml-6'>
-                <Button className="bg-gray-600 h-8 w-20 p-3 rounded-xl" variant='default' onClick={() => setTime('15')}>15</Button>
-                <Button className="bg-gray-600 h-8 w-20 p-3 rounded-xl" variant='default' onClick={() => setTime('30')}>30</Button>
-                <Button className="bg-gray-600 h-8 w-20 p-3 rounded-xl" variant='default' onClick={() => setTime('60')}>60</Button>
-                <Button className="bg-gray-600 h-8 w-20 p-3 rounded-xl" variant='default' onClick={() => setTime('120')}>120</Button>
+          <div className='mt-8'>
+            <div className="mb-4 flex flex-col items-center gap-6">
+              <label className="text-gray-800 font-semibold relative">
+                {invalid && time == '' && <span className='absolute top-[-5px] left-[-8px] text-red-500'>*</span>}
+                Time limit 0f battle(sec)
+              </label>
+              <div className='flex gap-6 ml-6 font-bold'>
+                <Button className={`bg-gray-600 h-8 w-[5.35rem] p-3 rounded-xl ${time == '15' ? 'bg-yellow-500 hover:bg-yellow-500 font-bold text-red-500' : ''}`} variant='default' onClick={() => setTime('15')}>15</Button>
+                <Button className={`bg-gray-600 h-8 w-[5.35rem] p-3 rounded-xl ${time == '30' ? 'bg-yellow-500 hover:bg-yellow-500 font-bold text-red-500' : ''}`} variant='default' onClick={() => setTime('30')}>30</Button>
+                <Button className={`bg-gray-600 h-8 w-[5.35rem] p-3 rounded-xl ${time == '60' ? 'bg-yellow-500 hover:bg-yellow-500 font-bold text-red-500' : ''}`} variant='default' onClick={() => setTime('60')}>60</Button>
+                <Button className={`bg-gray-600 h-8 w-[5.35rem] p-3 rounded-xl ${time == '120' ? 'bg-yellow-500 hover:bg-yellow-500 font-bold text-red-500' : ''}`} variant='default' onClick={() => setTime('120')}>120</Button>
               </div>
             </div>
-            <div className="my-6 flex-center">
-              <label className="font-serif text-gray-800 text-sm font-semibold">Eth Amount:</label>
-              <input
-                type="text"
-                placeholder="Enter ETH amount"
-                className="w-[400px] p-2 mt-2 bg-gray-800 border border-gray-600 rounded-md text-white"
-                value={ethAmount}
-                onChange={(e) => setEthAmount(e.target.value)}
-              />
+            <div className='flex-center gap-6 mt-10'>
+              <div className="flex flex-col mr-8 gap-2">
+                <label className="text-gray-800 font-bold relative">
+                  {invalid && ethAmount == '' && <span className='absolute top-[-5px] left-[-8px] text-red-500'>*</span>}
+                  Eth Amount:
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter ETH amount"
+                  className="w-[150px] pl-3 p-2 py-4 placeholder:text-sm text-xl bg-gray-700 outline-none rounded-md text-white"
+                  value={ethAmount}
+                  onChange={(e) => setEthAmount(e.target.value)}
+                />
+              </div>
+
+              <div className='w-[2px] bg-yellow-600 h-[100px]'></div>
+
+              <div className='flex flex-col ml-8 gap-2'>
+                <label className=" text-gray-800 font-bold">Choose Chain:</label>
+                <NetworkButton/>
+              </div>
             </div>
-             <div className='flex items-center my-6 gap-6'>
-               <label className="font-serif text-gray-800 text-sm font-semibold">Choose Network:</label>
-               <NetworkButton/>
-             </div>
-           <div className='flex-center'>
-              <button className="bg-gray-700 text-white py-2 px-4 rounded-md"
-                onClick={() => console.log('Start battle with time and ETH')}>Confirm</button>
+           <div className='flex-center mt-10'>
+              <button className="w-[430px] uppercase font-semibold bg-[#32435D] text-white py-3 rounded-md hover:bg-[#1D2635] duration-500"
+                onClick={startBattleConfirm}>Confirm</button>
             </div>
 
           </div>
         );
-        
+        case 'confirmedStartBattle':
+          return (
+            <div className='flex flex-col items-center'>
+              <div className='flex items-center mt-4 gap-4 text-black'>
+                <div className="text-md">Invite Code:</div>
+                <div className='bg-[#b5b5ba] rounded-xl py-3 px-24 flex items-center gap-2'>
+                  <h1 className='text-2xl font-bold text-red-500'>XBT45Q6</h1>
+                </div>
+                <button onClick={handleCopy} className='relative'>
+                  <MdContentCopy className='text-xl text-gray-600 hover:text-black cursor-pointer' />
+                  {copied && (
+                    <span className='absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-sm rounded-lg py-1 px-2'>
+                      Copied!
+                    </span>
+                  )}
+                </button>
+              </div>
+                <div className='w-[380px] text-center flex-center mt-8'>
+                  <p className='text-sm text-gray-600'>
+                    Share this code with ur friend and wait for him to join the battle 
+                  </p>
+                </div>
+            </div>
+          );
       case 'joinBattle':
         return (
-          <>
-            <div className="mb-4">
-              <label className="text-white block">Invite Code:</label>
-              <input
-                type="text"
-                placeholder="Enter invite code"
-                className="w-full p-2 mt-2 bg-gray-800 border border-gray-600 rounded-md text-white"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value)}
-              />
+          <div className='flex flex-col items-center'>
+            <div className='flex items-center mt-8 gap-4 text-black'>
+                <div className="text-md">Invite Code:</div>
+                <div className='bg-[#b5b5ba] rounded-xl py-3 px-12 flex items-center gap-2'>
+                  <input
+                    value={enteredInviteCode}
+                    onChange={(e) => setEnteredInviteCode(e.target.value)} 
+                    placeholder="Enter Invite Code" 
+                    className='bg-transparent focus:outline-none border-none outline-none text-xl font-bold text-red-500'
+                  />  
+                </div>
             </div>
-            <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-              onClick={() => console.log('Join battle')}>Join Battle</button>
-          </>
+                {inviteCodeError && <div className='text-red-500'>Code Invalid</div>}
+              <div className='text-center flex-center mt-8'>
+              <Button 
+                className='py-6 px-16 font-bold text-gray-100 text-lg duration-700 rounded-md bg-[#D7B633] 
+                          hover:bg-[#D7B633] hover:scale-105 hover:text-red-500 
+                          transition-transform transform'
+                onClick={checkInviteCodee}>
+                  Join Battle
+              </Button>
+
+              </div>
+          </div>
         );
-      case 'showBattleDetails':
+      case 'joiningDetails':
         return (
-          <>
-            <div className="text-white mb-4">Battle Time: {battleDetails?.time}</div>
-            <div className="text-white mb-4">ETH Amount: {battleDetails?.ethAmount}</div>
-            <button className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-              onClick={() => console.log('Confirm join battle')}>Confirm Joining Battle</button>
-          </>
+          <div className='text-gray-900 mt-6'>
+            <div className='flex-center text-center'>
+              <h1 className='text-gray-500'><span className='text-red-500'>0xb50c2a93683b8dA575cD8f93602f3dB89a27A1e4</span> <br/> is challenging you to a battle</h1>
+            </div>
+            <div className="mb-4 mt-8">Time limit of battle: {battleDetails?.time}</div>
+            <div className="mb-4">ETH Amount: {battleDetails?.eth_amount}</div>
+            <div className="mb-4">Chain: {battleDetails?.chain}</div>
+            <div className='flex-center mt-8'>
+                <button className="w-[430px] uppercase font-semibold bg-[#32435D] text-white py-3 rounded-md hover:bg-[#1D2635] duration-500"
+                    onClick={confirmJoinBattle}>Confirm
+                </button>
+            </div>
+          </div>
         );
       default:
         return null;
-    }
-  };
-
-  const handleBackButton = () => {
-    if (step === 'startBattle' || step === 'joinBattle') {
-      setStep('initial');
     }
   };
 
@@ -115,13 +310,19 @@ const BattleDialog = ({setOpenBattleDialog}:any) => {
           {renderDialogContent()}
 
           {/* Close Button */}
-          <button 
-            className="absolute top-4 right-4 text-gray-400  p-1 font-mono text-2xl font-bold"
-            onClick={() => setOpenBattleDialog(false)}><RiCloseLine />
-          </button>
+         {step != 'confirmedStartBattle' && (
+            <button 
+              className="absolute top-4 right-4 text-gray-400  p-1 font-mono text-2xl font-bold"
+              onClick={() => {
+                setOpenBattleDialog(false)
+                setStep('initial')
+              }}><RiCloseLine />
+            </button>
+          )
+         }
 
           {/* Back Button */}
-          {step !== 'initial' && (
+          {step !== 'initial' && step != 'confirmedStartBattle' && (
             <button 
               className="absolute top-6 left-6 text-gray-400  p-1 font-mono text-xl font-bold"
               onClick={handleBackButton}><FaArrowLeftLong />

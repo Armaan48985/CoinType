@@ -3,7 +3,7 @@ import React from 'react'
 import { FaCoins } from 'react-icons/fa'
 import WalletConnect from './self/WalletConnect'
 
-const Navbar = ({selectedTime, setSelectedTime, handleStart, started}:any) => {
+const Navbar = ({selectedTime, setSelectedTime, handleStart, started, openBattleDialog, setOpenBattleDialog}:any) => {
   
   return (
     <div className="p-10 flex-between px-28 mt-10 text-gray-300">
@@ -21,7 +21,10 @@ const Navbar = ({selectedTime, setSelectedTime, handleStart, started}:any) => {
         <div>
 
             <div>
-                <WalletConnect/>
+                <WalletConnect  
+                    openBattleDialog={openBattleDialog}
+                    setOpenBattleDialog={setOpenBattleDialog}
+                />
             </div>
         </div>
   </div>

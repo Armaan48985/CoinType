@@ -1,4 +1,5 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { MdKeyboardArrowDown } from 'react-icons/md';
 
 export default function NetworkButton() {
   return (
@@ -16,7 +17,7 @@ export default function NetworkButton() {
             {ready ? (
               <button
                 onClick={openChainModal}
-                className="bg-gray-700 text-white py-2 px-4 rounded-md flex"
+                className="bg-gray-700 text-white py-4 px-4 rounded-md flex"
                 style={{ cursor: 'pointer' }}
               >
                 {chain.hasIcon && (
@@ -28,6 +29,10 @@ export default function NetworkButton() {
                       borderRadius: 999,
                       overflow: 'hidden',
                       marginRight: 8,
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: 8,
                     }}
                   >
                     <img
@@ -38,6 +43,8 @@ export default function NetworkButton() {
                   </div>
                 )}
                 {chain.name}
+
+                <span className='text-xl'><MdKeyboardArrowDown /></span>
               </button>
             ) : (
               <button className="bg-gray-700 text-white py-2 px-4 rounded-md">

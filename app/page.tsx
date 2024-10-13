@@ -1,6 +1,7 @@
 'use client';
 import Navbar from '@/components/Navbar';
 import ResultBox from '@/components/ResultBox';
+import BattleDialog from '@/components/self/BattleDialog';
 import { TooltipDemo } from '@/components/self/ToolTip';
 import TypeContent from '@/components/TypeContent';
 import VisualKeyboard from '@/components/VisualKeyboard';
@@ -31,6 +32,8 @@ export default function Home() {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [upward, setUpward] = useState(0);
+  const [openBattleDialog, setOpenBattleDialog] = useState(true);
+
 
   useEffect(() => {
     const maxCharsPerBlock = 60;
@@ -47,9 +50,12 @@ export default function Home() {
 
   }, [text])
 
-  console.log(started)
 
   const handleKeyPress = (event: any) => {
+    if(openBattleDialog){
+      console.log('fku')
+      return;
+    };
     if (remainingTime === 0) return;
     const pressedKey = event.key;
     setKeyPressed(pressedKey);
@@ -94,8 +100,6 @@ export default function Home() {
 
     setPressed(true);
 
-
-
     if (expectedChar === inputChar) {
         setTypedText(typedText + pressedKey);
         setCurrentIndex(currentIndex + 1);
@@ -123,15 +127,15 @@ export default function Home() {
   }
 
   useEffect(() => {
-      window.addEventListener('keydown', handleKeyPress);
+      if(!openBattleDialog) window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [currentIndex, charArray, typedText, started]);
 
 
-  const handleStart = (star:boolean) => {
-    if (star) {
+  const handleStart = (start:boolean) => {
+    if (start) {
        clearInterval(timerInterval!);
        setStarted(false);
        setCurrentIndex(0);
@@ -152,6 +156,15 @@ export default function Home() {
     handleEndTest();
   }
 }, [remainingTime]);
+
+useEffect(() => {
+  if(openBattleDialog){
+    clearInterval(timerInterval!);
+  }
+  else if(!openBattleDialog && started){
+    startTimer();
+  }
+}, [openBattleDialog]);
 
   const startTimer = () => {
     if (timerInterval) clearInterval(timerInterval);
@@ -181,6 +194,8 @@ export default function Home() {
           setSelectedTime={setSelectedTime} 
           handleStart={handleStart} 
           started={started}
+          openBattleDialog={openBattleDialog}
+          setOpenBattleDialog={setOpenBattleDialog}
         />
 
         <TypeContent 
