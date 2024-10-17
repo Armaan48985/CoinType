@@ -1,22 +1,24 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { Button } from "../ui/button";
 import NetworkButton from "./NetworkButton";
 import { Span } from "next/dist/trace";
-import { checkInviteCode, sendCode } from "@/app/ImportantFunc";
+import { checkInviteCode, player2Join, sendCode } from "@/app/ImportantFunc";
 import { useAccount, useSendTransaction } from "wagmi";
 import { parseEther } from "viem";
 import { MdContentCopy, MdFileCopy } from "react-icons/md";
 import { Input } from "../ui/input";
 import { ethers, id } from "ethers";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import supabase from "@/app/supabase";
 
-type BattleDataType = {
+export type BattleDataType = {
   invite_code: string;
   eth_amount: string;
   player1: string;
+  player2: string;
   started_by: string;
   typing_time: string;
   chain: string;
@@ -27,7 +29,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
   const [ethAmount, setEthAmount] = useState("");
   const [time, setTime] = useState("");
   const [generatedInviteCode, setgeneratedInviteCode] = useState("");
-  const [enteredgeneratedInviteCode, setEnteredgeneratedInviteCode] =
+  const [enteredInviteCode, setEnteredInviteCode] =
     useState("");
   const [battleDetails, setBattleDetails] = useState<BattleDataType>();
   const [invalid, setInvalid] = useState(false);
@@ -72,6 +74,46 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
     }
   };
 
+  const addressRef = useRef(address);
+
+
+  useEffect(() => {
+    addressRef.current = address;
+  }, [address]);
+  
+  console.log(enteredInviteCode)
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const handleInserts = (payload: any) => {
+      console.log('Change received:', payload);
+
+      const { new: battleData } = payload;
+      const participant = addressRef.current;
+      const code = generatedInviteCode || enteredInviteCode;
+
+      const newUrl = `/battle?battleId=${code}&address=${participant}`;
+
+      // Ensure router.push only runs when the URL will change
+      if (isConnected && code && 
+        (battleData.player1 === participant || battleData.player2 === participant) && 
+        `${pathname}${searchParams}` !== newUrl) {
+        router.push(newUrl);
+      }
+    };
+
+    const subscription = supabase
+      .channel('battle')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'battle' }, handleInserts)
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [isConnected, generatedInviteCode, enteredInviteCode, pathname, searchParams, router]);
+  
+
   const confirmJoinBattle = async () => {
     try {
       if(battleDetails){
@@ -104,27 +146,36 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
     }
   }, [isStartBattleSuccess, address, startingStatus]);
 
-
   useEffect(() => {
-    if (joiningStatus === "success" && address && chain) {
-      setBattleStarts(true);
-    }
-  }, [isStartBattleSuccess, address, joiningStatus]);
+    const fetchData = async () => {
+      if (joiningStatus === "success" && battleDetails && address && chain) {
+        try {
+          const data = await player2Join(battleDetails?.invite_code, address);
+          if (data) {
+            setBattleDetails({...battleDetails, player2: data[0].player2});
+          }
+        } catch (error) {
+          console.error('Error in player2Join:', error);
+        }
+      }
+    };
+  
+    fetchData(); 
+  }, [isStartBattleSuccess, address, joiningStatus, battleDetails, chain]);
 
   const checkgeneratedInviteCodee = async () => {
-    if (!enteredgeneratedInviteCode.trim() || !address) {
+    if (!enteredInviteCode.trim() || !address) {
       setgeneratedInviteCodeError(true);
       return;
     }
 
     try {
       const data = await checkInviteCode(
-        enteredgeneratedInviteCode,
+        enteredInviteCode,
         address
       );
       if (data && data?.length > 0) {
         setgeneratedInviteCodeError(false);
-        setEnteredgeneratedInviteCode("");
         setBattleDetails(data[0]);
         setStep("joiningDetails");
       } else {
@@ -135,15 +186,6 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
       setgeneratedInviteCodeError(true);
     }
   };
-
-  console.log('battleStarts', battleStarts)
-
-  useEffect(() => {
-    if(battleStarts){
-      console.log('happens')
-      router.push(`/battle/${address}`);
-    }
-  }, [battleStarts]);
 
 
   const generategeneratedInviteCode = () => {
@@ -157,7 +199,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
       .writeText(generatedInviteCode)
       .then(() => {
         setCopied(true);
-        setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
+        setTimeout(() => setCopied(false), 2000);
       })
       .catch((err) => console.error("Failed to copy text: ", err));
   };
@@ -331,9 +373,9 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
               <div className="text-md">Invite Code:</div>
               <div className="bg-[#b5b5ba] rounded-xl py-3 px-12 flex items-center gap-2">
                 <input
-                  value={enteredgeneratedInviteCode}
+                  value={enteredInviteCode}
                   onChange={(e) =>
-                    setEnteredgeneratedInviteCode(e.target.value)
+                    setEnteredInviteCode(e.target.value)
                   }
                   placeholder="Enter Invite Code"
                   className="bg-transparent focus:outline-none border-none outline-none text-xl font-bold text-red-500"

@@ -30,18 +30,7 @@ export const checkInviteCode = async (code: string, player2_address: string) => 
   
     if (data) {
       console.log(player2_address, 'inserting this in place of player2')
-      const { data: data2, error: updateError } = await supabase
-        .from('battle')
-        .update({ player2: player2_address }) // Use update instead of insert
-        .eq('invite_code', code)
-        .select();
-  
-      if (updateError) {
-        console.error('Error updating player2:', updateError);
-        return null;
-      }
-  
-      console.log('Invite code checked and player2 updated successfully:', data2);
+
       return data;
     }
   
@@ -49,3 +38,32 @@ export const checkInviteCode = async (code: string, player2_address: string) => 
     return null;
   };
   
+
+  export const player2Join = async (code: string, player2_address: string) => {
+    const { data, error } = await supabase
+    .from('battle')
+    .update({ player2: player2_address })
+    .eq('invite_code', code)
+    .select();
+
+    if (error) {
+      console.error('Error updating player2:', error);
+      return null;
+    }
+    
+    return data;
+  }
+
+  export const getData = async (inviteCode: string) => {
+    const { data, error } = await supabase
+      .from('battle')
+      .select("*")
+      .eq('invite_code', inviteCode)
+
+      if (error) {
+        console.error('Error updating player2:', error);
+        return null;
+      }
+      
+      return data;
+  }

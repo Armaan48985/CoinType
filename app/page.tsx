@@ -5,9 +5,9 @@ import BattleDialog from '@/components/self/BattleDialog';
 import { TooltipDemo } from '@/components/self/ToolTip';
 import TypeContent from '@/components/TypeContent';
 import VisualKeyboard from '@/components/VisualKeyboard';
+import { open } from 'node:inspector/promises';
 import { useEffect, useState } from 'react';
 import { FaCoins, FaRedoAlt } from 'react-icons/fa';
-import { IoMdClose } from 'react-icons/io';
 import { MdOutlineNavigateNext } from 'react-icons/md';
 import { RiArrowRightSLine } from "react-icons/ri";
 
@@ -32,7 +32,7 @@ export default function Home() {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [upward, setUpward] = useState(0);
-  const [openBattleDialog, setOpenBattleDialog] = useState(true);
+  const [openBattleDialog, setOpenBattleDialog] = useState(false);
 
 
   useEffect(() => {
@@ -50,8 +50,8 @@ export default function Home() {
 
   }, [text])
 
-
   const handleKeyPress = (event: any) => {
+    console.log('open battle dialog', openBattleDialog) 
     if(openBattleDialog){
       console.log('fku')
       return;
@@ -74,11 +74,14 @@ export default function Home() {
         return;
     }
 
+    
     if (pressedKey.length > 1 && pressedKey !== ' ') return;
     
     const expectedChar = charArray[currentIndex];
     const inputChar = pressedKey;
-    if (pressedKey === ' ') {
+
+    if(!openBattleDialog){
+      if (pressedKey === ' ') {
         if (expectedChar === ' ') {
             setTypedText(typedText + ' ');
             setCurrentIndex(currentIndex + 1);
@@ -111,6 +114,7 @@ export default function Home() {
         setIncorrectCount(incorrectCount + 1);
     }
 
+    }
     setPressed(false);
 };
 
@@ -127,11 +131,14 @@ export default function Home() {
   }
 
   useEffect(() => {
-      if(!openBattleDialog) window.addEventListener('keydown', handleKeyPress);
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [currentIndex, charArray, typedText, started]);
+    if(!openBattleDialog){
+      console.log('lksjdlfkjsdlkj')
+      window.addEventListener('keydown', handleKeyPress);
+      return () => {
+        window.removeEventListener('keydown', handleKeyPress);
+      };
+    }
+  }, [currentIndex, charArray, typedText, started, openBattleDialog]);
 
 
   const handleStart = (start:boolean) => {
@@ -152,10 +159,10 @@ export default function Home() {
  };
  
  useEffect(() => {
-  if (remainingTime === 0) {
+  if (remainingTime === 0 || openBattleDialog) {
     handleEndTest();
   }
-}, [remainingTime]);
+}, [remainingTime, openBattleDialog]);
 
 useEffect(() => {
   if(openBattleDialog){
@@ -198,18 +205,21 @@ useEffect(() => {
           setOpenBattleDialog={setOpenBattleDialog}
         />
 
-        <TypeContent 
-          started={started}
-          remainingTime={remainingTime} 
-          selectedTime={selectedTime} 
-          finalText={finalText}
-          currentIndex={currentIndex} 
-          pressed={pressed} 
-          errorIndexes={errorIndexes} 
-          isCorrect={isCorrect}
-          upward={upward}
-          setUpward={setUpward}
-        />
+        <div className='mt-20'>
+          <TypeContent 
+            started={started}
+            remainingTime={remainingTime} 
+            selectedTime={selectedTime} 
+            finalText={finalText}
+            currentIndex={currentIndex} 
+            pressed={pressed} 
+            errorIndexes={errorIndexes} 
+            isCorrect={isCorrect}
+            upward={upward}
+            setUpward={setUpward}
+            battle={false}
+          />
+        </div>
 
         <div className='bg-[var(--background)] z-10 h-[200px]'>
           <VisualKeyboard keyPressed={keyPressed}/>

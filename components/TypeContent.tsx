@@ -11,7 +11,8 @@ const TypeContent = ({
   errorIndexes,
   isCorrect,
   setUpward, 
-  upward
+  upward,
+  battle
 }: any) => {
 
   const step = finalText[0]?.chars.length;
@@ -26,11 +27,13 @@ const TypeContent = ({
   }, [currentIndex]);
   
   return (
-    <div className="flex-center flex-col mt-20">
+    <div className="flex-center flex-col">
       <div className="relative max-w-[1000px]">
-        <div className="absolute top-[-3rem] left-[0] right-0 text-slate-200 text-3xl">
+        {!battle && (
+          <div className="absolute top-[-3rem] left-[0] right-0 text-slate-200 text-3xl">
           {started ? remainingTime : selectedTime}
         </div>
+        )}
         <div className="overflow-hidden max-w-[1000px]">
           {/* Apply dynamic inline style for translateY */}
           <div
