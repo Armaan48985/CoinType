@@ -22,6 +22,8 @@ export type BattleDataType = {
   started_by: string;
   typing_time: string;
   chain: string;
+  player1_result: string;
+  player2_result: string;
 };
 
 const BattleDialog = ({ setOpenBattleDialog }: any) => {

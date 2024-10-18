@@ -47,26 +47,26 @@ const ResultBox = ({setShowResult, typedText, remainingTime, selectedTime, incor
                 </div>
               </div>
 
-              <div className='flex-center gap-10 mt-7'>
-                  <div 
-                    onClick={() => {setShowResult(false); restart()}}
-                    className=''
-                  >
-                    <TooltipDemo 
-                      hoverText={<FaRedoAlt/>} 
-                      tooltipText='Restart Test' 
-                      hoverClass='border-none rounded-lg bg-white text-black px-8 hover:bg-white hover:scale-105 duration-500'
-                    />
-                  </div>
+                <div className='flex-center gap-10 mt-7'>
+                    <div 
+                      onClick={() => {setShowResult(false); restart()}}
+                      className=''
+                    >
+                      <TooltipDemo 
+                        hoverText={<FaRedoAlt/>} 
+                        tooltipText='Restart Test' 
+                        hoverClass='border-none rounded-lg bg-white text-black px-8 hover:bg-white hover:scale-105 duration-500'
+                      />
+                    </div>
 
-                  <div>
-                    <TooltipDemo 
-                      hoverText={<MdOutlineNavigateNext />} 
-                      tooltipText='Next Test'
-                      hoverClass='border-none text-xl font-bold rounded-lg bg-white text-black px-8 hover:bg-white hover:scale-105 duration-500'
-                    />
-                  </div>
-              </div>
+                    <div>
+                      <TooltipDemo 
+                        hoverText={<MdOutlineNavigateNext />} 
+                        tooltipText='Next Test'
+                        hoverClass='border-none text-xl font-bold rounded-lg bg-white text-black px-8 hover:bg-white hover:scale-105 duration-500'
+                      />
+                    </div>
+                </div>
             </div>
         </div>
      )

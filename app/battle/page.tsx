@@ -7,12 +7,17 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { textObject } from '../page';
 import { BattleDataType } from '@/components/self/BattleDialog';
-import { getData } from '../ImportantFunc';
+import { getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
+import { IoCheckmarkSharp } from "react-icons/io5";
+import ResultBox from '@/components/ResultBox';
+import BattleResultBox from '@/components/BattleResultBox';
+import { clear } from 'console';
+
+export type ParamType = { battleId: string; address: string }
 
 const page = () => {
-  const pathname = usePathname();
-  const [params, setParams] = useState<{ battleId: string; address: string }>({
+  const [params, setParams] = useState<ParamType>({
     battleId: '',
     address: '',
   });
@@ -25,8 +30,8 @@ const page = () => {
   const [typedText, setTypedText] = useState('');
   const [errorIndexes, setErrorIndexes] = useState<number[]>([]);
   const [pressed, setPressed] = useState(false);
-  const [selectedTime, setSelectedTime] = useState(15);
-  const [remainingTime, setRemainingTime] = useState(15);
+  const [selectedTime, setSelectedTime] = useState(7);
+  const [remainingTime, setRemainingTime] = useState(7);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [keyPressed, setKeyPressed] = useState<string | null>(null);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -34,13 +39,22 @@ const page = () => {
   const [upward, setUpward] = useState(0);
   const [openBattleDialog, setOpenBattleDialog] = useState(false);
   const [battleDetails, setBattleDetails] = useState<BattleDataType>();
+  const isPlayer1 = params.address == battleDetails?.player1;
+  const [isPlayer2Ready, setIsPlayer2Ready] = useState(false);
+  const searchParams = useSearchParams(); 
+  const [message, setMessage] = useState('');
+  const [battleStarted, setBattleStarted] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
+  const [count, setCount] = useState(4);
 
   useEffect(() => {
-      window.addEventListener('keydown', handleKeyPress)
+      if(battleStarted){
+        window.addEventListener('keydown', handleKeyPress)
       return () => {
         window.removeEventListener('keydown', handleKeyPress)
     }
-  }, [currentIndex, charArray, typedText, started, openBattleDialog]);
+      }
+  }, [currentIndex, charArray, typedText, battleStarted]);
 
 
   useEffect(() => {
@@ -67,10 +81,9 @@ const page = () => {
   const handleEndTest = () => {
     if(typedText){
       setShowResult(true)
+      clearInterval(timerInterval!);
     }
   };
-
-
   
   useEffect(() => {
     const maxCharsPerBlock = 60;
@@ -152,84 +165,101 @@ const page = () => {
     setPressed(false);
 };
 
-const searchParams = useSearchParams(); 
 
-useEffect(() => {
-  // Extract params from the URL on component mount
-  const battleId = searchParams.get('battleId');
-  const address = searchParams.get('address');
 
-  if (battleId && address) {
-    setParams({ battleId, address });
-  } else {
-    console.error('Missing battleId or address in URL params');
-  }
-}, []);
+  useEffect(() => {
+    const battleId = searchParams.get('battleId');
+    const address = searchParams.get('address');
 
-useEffect(() => {
-  const fetchData = async () => {
-    if (!params) return; // Ensure params are available
-    console.log('Params:', params);
-
-    const data = await getData(params.battleId);
-    console.log('fetchData result:', data);
-    if (data && data.length > 0) {
-      setBattleDetails(data[0]); 
+    if (battleId && address) {
+      setParams({ battleId, address });
     } else {
-      console.error('No battle details found');
+      console.error('Missing battleId or address in URL params');
     }
-  };
+  }, []);
 
-  if (params) fetchData();
-}, [params]); // Add params as a dependency
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!params) return;
 
+      const data = await getData(params.battleId);
 
-const isPlayer1 = params.address == battleDetails?.player1;
-const [isPlayer2Ready, setIsPlayer2Ready] = useState(false);
+      if (data && data.length > 0) {
+        setBattleDetails(data[0]); 
+      } else {
+        console.error('No battle details found');
+      }
+    };
 
+    if (params) fetchData();
+  }, [params]);
 
-useEffect(() => {
-  const subscription = supabase
-  .channel('battle')
-  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'battle' }, () => {
-    setIsPlayer2Ready(true);
-    alert('Battle updated!');
-  })
+  useEffect(() => {
+    const subscription = supabase
+      .channel('battle')
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'battle' }, 
+        (payload) => {
+          if (payload.new.status !== payload.old.status) {
+
+            console.log('status', payload.old.status, payload.new.status)
+            const newStatus = payload.new.status;
+            if (newStatus === 'started') {
+              setShowTimer(true);
+            }
+          }
   
-  .subscribe();
-
-return () => {
-  supabase.removeChannel(subscription);
-};
-}, []);
- 
-
-const handleStartReady = async () => {
-  if (isPlayer1) {
-    if (isPlayer2Ready) {
-      console.log('Battle started!');
-      alert('Battle started!');
-    } else {
-      console.log('Player 2 is not ready');
-      alert('Player 2 is not ready yet.');
+          if (payload.new.ready_status !== payload.old.ready_status) {
+            console.log('ready', payload.old.ready_status, payload.new.ready_status)
+            setIsPlayer2Ready(true);
+          }
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+  
+  
+  useEffect(() => {
+    if (showTimer && count > 0) {
+      const timer = setTimeout(() => setCount(count - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (count === 0) {
+      setShowTimer(false);
+      setBattleStarted(true);
+      startTimer();
     }
-  } else {
-    await markReady();
-  }
-};
+  }, [showTimer, count]);
 
-  const markReady = async () => {
-    const data = await supabase.from('battle').update({ ready_status: true }).eq('invite_code', params.battleId).select('*');
-
-    console.log('Marked as ready:', data);
+  const handleStartReady = async () => {
+    if (isPlayer1) {
+      if (isPlayer2Ready) {
+        console.log('setting status to zzzzzzzz')
+          setShowTimer(true);
+          setStatus('started', params.battleId);
+      } else {
+          setMessage('player2 is not ready yet')
+      }
+    } else {
+      console.log('not setting status to zzzzzzzz')
+      await markReady(params.battleId);
+    }
   };
+
 
   return (
     <div className='text-white'>
         <div className='w-full flex-between p-6 px-16 mt-8'>
-          <Button onClick={handleStartReady} className='text-white bg-yellow-400'>
-            {params.address == battleDetails?.player1 ? 'Start' : 'Ready'}
-          </Button>
+         <div>
+          {!battleStarted && (
+              <Button onClick={handleStartReady} className='text-white bg-yellow-400'>
+                {params.address == battleDetails?.player1 ? 'Start' : 'Ready'}
+              </Button>
+            )}
+         </div>
 
           <Image src='/battle.png' width={40} height={40} alt='logo' />
 
@@ -238,12 +268,6 @@ const handleStartReady = async () => {
 
         <div className='w-full h-auto'>
           <div className='mt-16'>
-
-              {isPlayer2Ready && (
-                <div className='flex-center'>
-                  <h1 className='text-4xl'>Player2 Ready</h1>
-                </div>
-              )}
               <div className='flex-center'>
                 <h1 className='text-4xl'>{remainingTime}</h1>
               </div>
@@ -269,10 +293,47 @@ const handleStartReady = async () => {
               </div>
           </div>
 
-          <div className='w-[280px] flex-center h-[200px] bg-gray-600 absolute bottom-5 right-5'>
-            player2 details
+          <div className='w-[350px] h-[200px] bg-gray-600 rounded-sm absolute bottom-5 right-5'>
+              <div className='relative w-full h-full  flex-center'>
+                {isPlayer1 && !isPlayer2Ready && message && (
+                  <p className='text-sm w-full text-red-500 absolute bottom-[12.5rem] right-0'>* {message} *</p>
+                )}
+                {isPlayer1 && isPlayer2Ready && (
+                  <Image 
+                    src='/flag.png' 
+                    width={20} 
+                    height={20} 
+                    alt='checkmark'
+                    className='absolute top-[-25px] left-[10px] rotate-[10deg]'  
+                  />
+                )}
+                <p>player{isPlayer1 ? '2' : '1'} detail</p>
+              </div>
           </div>
         </div>
+
+        {showTimer && (
+            <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+              <div className="text-white text-8xl font-bold animate-ping">
+                {count === 1 ? 'Type !!' : count-1}
+              </div>
+            </div>
+        )}
+
+        {showResult && battleDetails && (
+          <BattleResultBox 
+            setShowResult={setShowResult} 
+            typedText={typedText} 
+            remainingTime={remainingTime} 
+            selectedTime={selectedTime} 
+            incorrectCount={incorrectCount} 
+            battleDetails={battleDetails}
+            setBattleDetails={setBattleDetails}
+            params={params}
+          />
+        )}
+
+
     </div>
   );
 }

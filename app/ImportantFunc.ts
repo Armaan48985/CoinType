@@ -67,3 +67,13 @@ export const checkInviteCode = async (code: string, player2_address: string) => 
       
       return data;
   }
+
+
+export const markReady = async (battleId: string) => {
+    const data = await supabase.from('battle').update({ ready_status: true }).eq('invite_code', battleId).select('*');
+  };
+
+
+  export const setStatus = async (Status: string, battleId: string) => {
+    const data = await supabase.from('battle').update({ status: Status }).eq('invite_code', battleId).select('*');
+  }
