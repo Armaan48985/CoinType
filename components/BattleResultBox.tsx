@@ -26,8 +26,8 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   params,
   battleDetails,
 }) => {
-  const [wpm, setWpm] = useState<number>(0);
-  const [accuracy, setAccuracy] = useState<number>(0);
+  const [wpm, setWpm] = useState<number | null>(null);
+  const [accuracy, setAccuracy] = useState<number | null>(null);
   const [player1WPM, setPlayer1WPM] = useState<number | null>(null);
   const [player2WPM, setPlayer2WPM] = useState<number | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
@@ -47,51 +47,57 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     setAccuracy(calculatedAccuracy);
   };
 
-  console.log('wpm:', wpm);
-
-
   const sendResult = async () => {
     const isPlayer1 = params.address === battleDetails?.player1;
+    const currentResult = isPlayer1 ? battleDetails?.player1_result : battleDetails?.player2_result;
+  
+    if (Number(currentResult) === wpm) return; // Avoid unnecessary updates
+  
     const updateColumn = isPlayer1 ? 'player1_result' : 'player2_result';
-
-    const { data, error } = await supabase
+  
+    const { error } = await supabase
       .from('battle')
       .update({ [updateColumn]: wpm })
       .eq('invite_code', params.battleId)
-      .eq(isPlayer1 ? 'player1' : 'player2', params.address)
-      .select('*'); 
-
+      .eq(isPlayer1 ? 'player1' : 'player2', params.address);
+  
     if (error) console.error('Error updating result:', error);
     else {
-      console.log('Result updated successfully:', data);
-      setBattleDetails(data[0])
-    };
+      
+    }
   };
+  
 
-  const fetchResults = async () => {
-    const { data, error } = await supabase
-      .from('battle')
-      .select('player1_result, player2_result')
-      .eq('invite_code', params.battleId);
 
-    if (error) {
-      console.error('Error fetching results:', error);
-    } else if (data && data.length > 0) {
-      console.log('results:', data[0]);
-      const { player1_result, player2_result } = data[0];
-      setPlayer1WPM(player1_result);
-      setPlayer2WPM(player2_result);
-      determineWinner(player1_result, player2_result);
-
-      await supabase.from('battles').update({ winner: winner, status: 'completed' }).eq('invite_code', params.battleId);
+  const updateWinner = async (winnerName: string) => {
+    try {
+      const { error } = await supabase
+        .from('battle')
+        .update({ winner: winnerName, status: 'completed' })
+        .eq('invite_code', params.battleId);
+  
+      if (error) throw error;
+  
+      console.log('Winner and status updated successfully');
+    } catch (error) {
+      console.error('Error updating winner:', error);
     }
   };
   
   const determineWinner = (wpm1: number, wpm2: number) => {
-    if (wpm1 > wpm2) setWinner('Player 1');
-    else if (wpm1 < wpm2) setWinner('Player 2');
-    else setWinner('It’s a tie');
+    let winner = '';
+  
+    if (wpm1 > wpm2) {
+      setWinner('player1');
+      winner = battleDetails?.player1 ?? 'player1'; 
+    } else if (wpm1 < wpm2) {
+      setWinner('player2');
+      winner = battleDetails?.player2 ?? 'player2'; 
+    } 
+  
+    updateWinner(winner);
   };
+  
   
   useEffect(() => {
     calculateWPM();
@@ -99,9 +105,41 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   }, []);
 
   useEffect(() => {
-    sendResult();
-    fetchResults();
+    if (wpm !== null && accuracy !== null) sendResult();
   }, [wpm, accuracy]);
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel('battle')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'battle' },
+        (payload) => {
+          const { player1_result, player2_result } = payload.new;
+  
+          // Check if the new results are different from the existing ones
+          const isPlayer1Changed = player1_result !== player1WPM;
+          const isPlayer2Changed = player2_result !== player2WPM;
+  
+          if (player1_result && player2_result && (isPlayer1Changed || isPlayer2Changed)) {
+            console.log('Both players submitted:', payload.new);
+  
+            setPlayer1WPM(player1_result);
+            setPlayer2WPM(player2_result);
+            determineWinner(player1_result, player2_result);
+          } else {
+            console.log('No change in player results.');
+          }
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [player1WPM, player2WPM]);
+  
+  
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
@@ -116,15 +154,16 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
           </button>
         </div>
 
-        <div className="space-y-6">
+        {player1WPM && player2WPM ? (
+          <div className="space-y-6">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-medium text-gray-300">Player 1 WPM:</h2>
-            <p className="text-2xl font-bold text-blue-400">{player1WPM ?? 'N/A'}</p>
+            <p className="text-2xl font-bold text-blue-400">{player1WPM}</p>
           </div>
 
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-medium text-gray-300">Player 2 WPM:</h2>
-            <p className="text-2xl font-bold text-blue-400">{player2WPM ?? 'N/A'}</p>
+            <p className="text-2xl font-bold text-blue-400">{player2WPM}</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -132,6 +171,16 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
             <p className="text-2xl font-bold text-green-400">{winner}</p>
           </div>
         </div>
+        ) : (
+          <div className="flex items-center justify-center h-48">
+          <div className="relative w-24 h-24">
+            <div className="absolute inset-0 rounded-full border-4 border-t-transparent border-b-cyan-400 animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-l-transparent border-r-pink-500 animate-spin-slow"></div>
+          </div>
+        </div>
+        
+        
+        )}
       </div>
     </div>
   );

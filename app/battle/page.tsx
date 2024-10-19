@@ -30,8 +30,8 @@ const page = () => {
   const [typedText, setTypedText] = useState('');
   const [errorIndexes, setErrorIndexes] = useState<number[]>([]);
   const [pressed, setPressed] = useState(false);
-  const [selectedTime, setSelectedTime] = useState(7);
-  const [remainingTime, setRemainingTime] = useState(7);
+  const [selectedTime, setSelectedTime] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(0);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [keyPressed, setKeyPressed] = useState<string | null>(null);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -79,10 +79,8 @@ const page = () => {
   };
   
   const handleEndTest = () => {
-    if(typedText){
-      setShowResult(true)
+      if(count == 0) setShowResult(true)
       clearInterval(timerInterval!);
-    }
   };
   
   useEffect(() => {
@@ -166,6 +164,9 @@ const page = () => {
 };
 
 
+console.log(showResult, battleDetails)
+
+
 
   useEffect(() => {
     const battleId = searchParams.get('battleId');
@@ -180,19 +181,19 @@ const page = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!params) return;
-
       const data = await getData(params.battleId);
 
       if (data && data.length > 0) {
         setBattleDetails(data[0]); 
+        setSelectedTime(data[0].typing_time)
+        setRemainingTime(data[0].typing_time)
       } else {
         console.error('No battle details found');
       }
     };
 
     if (params) fetchData();
-  }, [params]);
+  }, [params]); 
 
   useEffect(() => {
     const subscription = supabase
@@ -201,16 +202,17 @@ const page = () => {
         { event: 'UPDATE', schema: 'public', table: 'battle' }, 
         (payload) => {
           if (payload.new.status !== payload.old.status) {
-
-            console.log('status', payload.old.status, payload.new.status)
             const newStatus = payload.new.status;
             if (newStatus === 'started') {
+              console.log('feelin it')
               setShowTimer(true);
             }
           }
+
+          console.log('checking')
   
-          if (payload.new.ready_status !== payload.old.ready_status) {
-            console.log('ready', payload.old.ready_status, payload.new.ready_status)
+          if (payload.new.ready_status) {
+            console.log('working')
             setIsPlayer2Ready(true);
           }
         }
@@ -224,28 +226,25 @@ const page = () => {
   
   
   useEffect(() => {
-    if (showTimer && count > 0) {
+    if (showTimer && count > 0 && !battleStarted) {
       const timer = setTimeout(() => setCount(count - 1), 1000);
       return () => clearTimeout(timer);
     } else if (count === 0) {
       setShowTimer(false);
       setBattleStarted(true);
-      startTimer();
+      if(!showResult) startTimer();
     }
   }, [showTimer, count]);
 
   const handleStartReady = async () => {
     if (isPlayer1) {
       if (isPlayer2Ready) {
-        console.log('setting status to zzzzzzzz')
-          setShowTimer(true);
-          setStatus('started', params.battleId);
+          await setStatus('started', params.battleId);
       } else {
           setMessage('player2 is not ready yet')
       }
     } else {
-      console.log('not setting status to zzzzzzzz')
-      await markReady(params.battleId);
+      if(params) await markReady(params.battleId);
     }
   };
 
