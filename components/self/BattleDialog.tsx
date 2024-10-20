@@ -13,12 +13,13 @@ import { Input } from "../ui/input";
 import { ethers, id } from "ethers";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import supabase from "@/app/supabase";
+import { LuSwords } from "react-icons/lu";
 
 export type BattleDataType = {
   invite_code: string;
   eth_amount: string;
-  player1: string;
-  player2: string;
+  player1: `0x${string}`;
+  player2: `0x${string}`;
   started_by: string;
   typing_time: string;
   chain: string;
@@ -97,7 +98,6 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
 
       const newUrl = `/battle?battleId=${code}&address=${participant}`;
 
-      // Ensure router.push only runs when the URL will change
       if (isConnected && code && 
         (battleData.player1 === participant || battleData.player2 === participant) && 
         `${pathname}${searchParams}` !== newUrl) {
@@ -402,26 +402,33 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
       case "joiningDetails":
         return (
           <div className="text-gray-900 mt-6">
-            <div className="flex-center text-center">
-              <h1 className="text-gray-500">
-                <span className="text-red-500">
-                  0xb50c2a93683b8dA575cD8f93602f3dB89a27A1e4
-                </span>{" "}
-                <br /> is challenging you to a battle
-              </h1>
+            <div className="flex-center flex-col text-center text-gray-800 text-sm">
+                <p className="bg-gray-700 text-white font-bold p-2 px-3 rounded-lg mb-2">
+                    0xb50c2a93683b8dA575cD8f93602f3dB89a27A1e4
+                </p>
+                  <p className="text-bold flex-center gap-2">is challenging you to a battle 
+                    <span>
+                      <LuSwords className="text-xl"/>
+                    </span>
+                  </p>
             </div>
-            <div className="mb-6 mt-8">
-              Time limit of battle: <span className="text-xl text-red-500 font-bold ml-2">{battleDetails?.typing_time}</span>
+
+            <div className="flex flex-col gap-6 text-sm mt-12 ml-4 font-semibold text-gray-600">
+              <div className="">Time limit of battle: <span className="text-lg text-black  font-bold ml-1">{battleDetails?.typing_time}</span>  </div>
+              <div className="">ETH Amount: <span className="text-lg text-black font-bold ml-1">{battleDetails?.eth_amount}</span></div>
+              <div className="mt-1">Chain: <span  className="ml-2 bg-[#073b4cf3] text-md text-white p-2 rounded-lg">{battleDetails?.chain}</span></div>
             </div>
-            <div className="mb-6">ETH Amount: <span className="text-xl text-slate-700 p-2 rounded-lg font-bold ml-2">{battleDetails?.eth_amount}</span></div>
-            <div className="mb-4">Chain: <span  className="ml-2 bg-gray-800 text-white p-2 rounded-lg">{battleDetails?.chain}</span></div>
-            <div className="flex-center mt-8">
-              <button
-                className="w-[430px] uppercase font-semibold bg-[#32435D] text-white py-3 rounded-md hover:bg-[#1D2635] duration-500"
+
+
+            <div className="flex-center mt-14">
+              <Button
+                className="w-[470px] py-6 px-16 font-bold text-gray-100 text-lg duration-700 rounded-md bg-[#D7B633] 
+                          hover:bg-[#D7B633] hover:scale-105 hover:text-red-500 
+                          transition-transform transform uppercase"
                 onClick={confirmJoinBattle}
               >
                 Confirm
-              </button>
+              </Button>
             </div>
           </div>
         );

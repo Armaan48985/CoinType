@@ -13,6 +13,8 @@ import { IoCheckmarkSharp } from "react-icons/io5";
 import ResultBox from '@/components/ResultBox';
 import BattleResultBox from '@/components/BattleResultBox';
 import { clear } from 'console';
+import { useAccount } from 'wagmi';
+import PlayerDetails from '@/components/PlayerDetails';
 
 export type ParamType = { battleId: string; address: string }
 
@@ -254,7 +256,13 @@ console.log(showResult, battleDetails)
         <div className='w-full flex-between p-6 px-16 mt-8'>
          <div>
           {!battleStarted && (
-              <Button onClick={handleStartReady} className='text-white bg-yellow-400'>
+              <Button 
+                onClick={handleStartReady} 
+                disabled={isPlayer2Ready && params.address != battleDetails?.player1}
+                className={`w-[150px] h-[50px] font-bold text-gray-100 text-lg rounded-md bg-[#D7B633] 
+                          hover:bg-[#f3cf3f] hover:text-red-500 
+                          transition-transform transform uppercase
+                          ${isPlayer2Ready && params.address != battleDetails?.player1 ? 'text-red-500 bg-[#D7B633]' : 'animate-start'}`}>
                 {params.address == battleDetails?.player1 ? 'Start' : 'Ready'}
               </Button>
             )}
@@ -295,7 +303,7 @@ console.log(showResult, battleDetails)
           <div className='w-[350px] h-[200px] bg-gray-600 rounded-sm absolute bottom-5 right-5'>
               <div className='relative w-full h-full  flex-center'>
                 {isPlayer1 && !isPlayer2Ready && message && (
-                  <p className='text-sm w-full text-red-500 absolute bottom-[12.5rem] right-0'>* {message} *</p>
+                  <p className='text-sm w-full text-red-500 absolute bottom-[12.5rem] right-0'>{message}</p>
                 )}
                 {isPlayer1 && isPlayer2Ready && (
                   <Image 
@@ -306,7 +314,16 @@ console.log(showResult, battleDetails)
                     className='absolute top-[-25px] left-[10px] rotate-[10deg]'  
                   />
                 )}
-                <p>player{isPlayer1 ? '2' : '1'} detail</p>
+                <div>
+                  <p>player{isPlayer1 ? '2' : '1'}</p>
+                  <p>({isPlayer1 ? battleDetails.player2.slice(0,8) : battleDetails?.player1.slice(0,8)}...)</p>
+                </div>
+
+                {battleDetails && (
+                    <div>
+                     <PlayerDetails address={isPlayer1 ? battleDetails.player2 : battleDetails?.player1} />
+                    </div>
+                )}
               </div>
           </div>
         </div>

@@ -43,30 +43,40 @@ const TypeContent = ({
               transition: 'transform 0.3s ease-in-out', // Smooth transition
             }}
           >
-            {finalText.map((block: any, blockIndex: number) => (
-              <div key={blockIndex} className="flex"> {/* Ensure each block is its own line */}
-                {block.chars.map((char: any, charIndex: any) => (
-                  <span
-                    key={`${blockIndex}-${charIndex}`} // Unique key combining block and char index
-                    className={`mr-[1px] font-[500] text-[28px] ${
-                      blockIndex * step + charIndex === currentIndex && !pressed
-                        ? 'bg-yellow-500 text-white'
-                        : blockIndex * step + charIndex < currentIndex
-                        ? errorIndexes.includes(blockIndex * step + charIndex)
-                          ? 'text-[#F94E4E]'
-                          : 'text-[#2E428A] text-opacity-70'
-                        : 'text-slate-100'
-                    } ${
-                      blockIndex * step + charIndex === currentIndex && !isCorrect
-                        ? 'bg-red-500'
-                        : 'bg-transparent'
-                    } py-1 duration-100 px-[2px] rounded`}
-                  >
-                    {char}
-                  </span>
-                ))}
-              </div>
-            ))}
+           {!finalText.length ? (
+                 <div className="flex justify-center items-center h-[200px]">
+                 <div className="relative w-10 h-10">
+                   <span className="absolute inline-block w-full h-full rounded-full border-4 border-t-transparent border-white animate-spin"></span>
+                 </div>
+               </div>
+                ) : (
+  // Render finalText when it's loaded
+  finalText.map((block: any, blockIndex: number) => (
+    <div key={blockIndex} className="flex">
+      {block.chars.map((char: any, charIndex: number) => (
+        <span
+          key={`${blockIndex}-${charIndex}`} // Unique key combining block and char index
+          className={`mr-[1px] font-[500] text-[28px] ${
+            blockIndex * step + charIndex === currentIndex && !pressed
+              ? 'bg-yellow-500 text-white'
+              : blockIndex * step + charIndex < currentIndex
+              ? errorIndexes.includes(blockIndex * step + charIndex)
+                ? 'text-[#F94E4E]'
+                : 'text-[#2E428A] text-opacity-70'
+              : 'text-slate-100'
+          } ${
+            blockIndex * step + charIndex === currentIndex && !isCorrect
+              ? 'bg-red-500'
+              : 'bg-transparent'
+          } py-1 duration-100 px-[2px] rounded`}
+        >
+          {char}
+        </span>
+      ))}
+    </div>
+  ))
+)}
+
           </div>
         </div>
       </div>

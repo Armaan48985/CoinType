@@ -57,7 +57,19 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+		  keyframes: {
+			scale: {
+			  '0%': { transform: 'scale(1)' },
+			//   '25%': { transform: 'scale(1.2)' },
+			  '50%': { transform: 'scale(1.2)' },
+			//   '75%': { transform: 'scale(1.2)' },
+			  '100%': { transform: 'scale(1)' },
+			},
+		  },
+		  animation: {
+			'start': 'scale 2s ease-in-out infinite',
+		  },
   	}
   },
   plugins: [require("tailwindcss-animate"),  addVariablesForColors,],
