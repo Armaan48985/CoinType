@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import VisualKeyboard from '@/components/VisualKeyboard';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BattleDataType } from '@/components/self/BattleDialog';
 import { getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
