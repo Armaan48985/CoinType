@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import VisualKeyboard from '@/components/VisualKeyboard';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import { BattleDataType } from '@/components/self/BattleDialog';
 import { getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
@@ -287,6 +287,7 @@ useEffect(() => {
 
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className='text-white'>
         <div className='w-full flex-between p-6 px-16 mt-8'>
          <div>
@@ -421,7 +422,9 @@ useEffect(() => {
 
 
     </div>
+    </Suspense>
   );
+  
 }
 
 export default BattlePage
