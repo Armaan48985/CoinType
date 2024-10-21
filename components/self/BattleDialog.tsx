@@ -34,7 +34,11 @@ export type BattleDataType = {
   player2_result: string | null;
 };
 
-const BattleDialog = ({ setOpenBattleDialog }: any) => {
+interface BattleDialogProps {
+  setOpenBattleDialog: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
   const [step, setStep] = useState("initial");
   const [ethAmount, setEthAmount] = useState("");
   const [time, setTime] = useState("");
@@ -155,7 +159,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
       });
       setStep("confirmedStartBattle");
     }
-  }, [isStartBattleSuccess, address, startingStatus]);
+  }, [isStartBattleSuccess, address, startingStatus, chain, ethAmount, time]);
 
   useEffect(() => {
     const fetchData = async () => {

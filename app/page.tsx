@@ -166,7 +166,7 @@ export default function Home() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-  }, [currentIndex, charArray, typedText, started, openBattleDialog]);
+  }, [currentIndex, charArray, typedText, started, openBattleDialog, handleKeyPress]);
 
 
   const handleStart = (start:boolean) => {
@@ -185,12 +185,21 @@ export default function Home() {
        console.log('again wrong')
     }
  };
- 
- useEffect(() => {
-  if (remainingTime === 0 || openBattleDialog) {
-    handleEndTest();
-  }
-}, [remainingTime, openBattleDialog]);
+
+ const startTimer = () => {
+  if (timerInterval) clearInterval(timerInterval);
+  const interval = setInterval(() => {
+    setRemainingTime((prevTime) => {
+      if (prevTime === 1) {
+        handleEndTest();
+        clearInterval(interval);
+        return 0;
+      }
+      return prevTime - 1;
+    });
+  }, 1000);
+  setTimerInterval(interval);
+};
 
 useEffect(() => {
   if(openBattleDialog){
@@ -199,28 +208,23 @@ useEffect(() => {
   else if(!openBattleDialog && started){
     startTimer();
   }
-}, [openBattleDialog]);
+}, [openBattleDialog, startTimer]);
 
-  const startTimer = () => {
-    if (timerInterval) clearInterval(timerInterval);
-    const interval = setInterval(() => {
-      setRemainingTime((prevTime) => {
-        if (prevTime === 1) {
-          handleEndTest();
-          clearInterval(interval);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-    setTimerInterval(interval);
-  };
+ 
   
   const handleEndTest = () => {
     if(typedText){
       setShowResult(true)
     }
   };
+
+   
+ useEffect(() => {
+  if (remainingTime === 0 || openBattleDialog) {
+    handleEndTest();
+  }
+}, [remainingTime, openBattleDialog, handleEndTest]);
+
 
   return (
     <div className="w-full">

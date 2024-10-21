@@ -1,6 +1,6 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { RiLogoutBoxRLine } from 'react-icons/ri';
 import BattleDialog from './BattleDialog';
 

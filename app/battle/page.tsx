@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import VisualKeyboard from '@/components/VisualKeyboard';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { BattleDataType } from '@/components/self/BattleDialog';
 import { getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
@@ -20,7 +20,7 @@ const BattlePage = () => {
     battleId: '',
     address: '',
   });
-  const [finalText, setFinalText] = useState<string[][]>(
+  const [finalText] = useState<string[][]>(
   [
       ['H', 'e', 'l', 'l', 'o'],
       [' '],
@@ -103,59 +103,17 @@ const BattlePage = () => {
   const [showTimer, setShowTimer] = useState(false);
   const [count, setCount] = useState(4);
 
-  useEffect(() => {
-      if(battleStarted){
-        window.addEventListener('keydown', handleKeyPress)
-      return () => {
-        window.removeEventListener('keydown', handleKeyPress)
-    }
-      }
-  }, [currentIndex, charArray, typedText, battleStarted]);
-
-  // const fetchData = async () => {
-  //   try {
-  //     const data = await gen();
-  //     console.log('raw data', data);
   
-  //     const regex = /\[.*?\]/;
-  //     const match = data.match(regex);
-  
-  //     if (match) {
-  //       const arrayStr = match[0];
-  //       const arr: string[] = JSON.parse(arrayStr) as string[];
-  
-  //       const newCharArrays: string[][] = arr.flatMap((word: string) => [
-  //         Array.from(word), 
-  //         [' '] 
-  //       ]).slice(0, -1)
-  
-  //       const charArray: string[] = arr.flatMap((word: string) => [
-  //         ...Array.from(word), 
-  //         ' ' 
-  //       ]);
-  
-  //       if (charArray[charArray.length - 1] === '') {
-  //         charArray.pop();
-  //       }
-  
-  //       setFinalText(newCharArrays); 
-  //       setCharArray(charArray); 
-  //     } else {
-  //       console.log("No array found in the string.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
-  //   useEffect(() => {
-  //     fetchData()
-  //   });
+  const handleEndTest = () => {
+      if(count == 0) setShowResult(true)
+      clearInterval(timerInterval!);
+  };
 
   useEffect(() => {
     if (remainingTime === 0 || openBattleDialog) {
       handleEndTest();
     }
-  }, [remainingTime, openBattleDialog]);
+  }, [remainingTime, openBattleDialog, handleEndTest]);
 
   const startTimer = () => {
     if (timerInterval) clearInterval(timerInterval);
@@ -172,10 +130,6 @@ const BattlePage = () => {
     setTimerInterval(interval);
   };
   
-  const handleEndTest = () => {
-      if(count == 0) setShowResult(true)
-      clearInterval(timerInterval!);
-  };
 
 
   const handleKeyPress = (event: KeyboardEvent) => {
@@ -243,6 +197,16 @@ const BattlePage = () => {
     setPressed(false);
 };
 
+
+useEffect(() => {
+  if(battleStarted){
+    window.addEventListener('keydown', handleKeyPress)
+  return () => {
+    window.removeEventListener('keydown', handleKeyPress)
+  }
+}
+}, [currentIndex, charArray, typedText, handleKeyPress]);
+
   useEffect(() => {
     const battleId = searchParams.get('battleId');
     const address = searchParams.get('address');
@@ -252,7 +216,7 @@ const BattlePage = () => {
     } else {
       console.error('Missing battleId or address in URL params');
     }
-  });
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchData = async () => {

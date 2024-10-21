@@ -117,11 +117,11 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   useEffect(() => {
     calculateWPM();
     calculateAccuracy();
-  }, []);
+  }, [calculateAccuracy, calculateWPM]);
 
   useEffect(() => {
     if (wpm !== null && accuracy !== null) sendResult();
-  }, [wpm, accuracy]);
+  }, [wpm, accuracy, sendResult]);
 
   useEffect(() => {
     const subscription = supabase
@@ -155,7 +155,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [player1WPM, player2WPM]);
+  }, [player1WPM, player2WPM, determineWinner]);
 
   const provider = new ethers.JsonRpcProvider(
     "https://rpc.walletconnect.com/v1/?chainId=eip155:11155111&projectId=735705f1a66fe187ed955c8f9e16164d"
