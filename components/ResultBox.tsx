@@ -4,11 +4,21 @@ import { IoMdClose } from 'react-icons/io'
 import { MdOutlineNavigateNext } from 'react-icons/md';
 import { TooltipDemo } from './self/ToolTip';
 
-const ResultBox = ({setShowResult, typedText, remainingTime, selectedTime, incorrectCount, restart}:any) => {
+
+interface ResultBoxProps {
+  setShowResult: (show: boolean) => void;
+  typedText: string;
+  remainingTime: number;
+  selectedTime: number; 
+  incorrectCount: number;
+  restart: () => void;
+}
+
+const ResultBox: React.FC<ResultBoxProps> = ({setShowResult, typedText, remainingTime, selectedTime, incorrectCount, restart}:any) => {
 
     
   const calculateWPM = () => {
-    const totalWordsTyped = typedText.trim().split(' ').filter((word:any) =>  word !== '').length;    
+    const totalWordsTyped = typedText.trim().split(' ').filter((word:string) =>  word !== '').length;    
     const timeTakenInSeconds = selectedTime - remainingTime; 
     const timeTakenInMinutes = timeTakenInSeconds / 60;
 

@@ -1,5 +1,6 @@
 import { useEnsAvatar, useEnsName } from 'wagmi';
 import blockies from 'ethereum-blockies-base64';
+import Image from 'next/image';
 
 
 interface PlayerDetailsProps {
@@ -16,7 +17,7 @@ interface PlayerDetailsProps {
 
   return (
       <div className="relative">
-        <img
+        <Image
           src={ensAvatar || identicon}
           alt="Player Avatar"
           className="w-14 h-14 rounded-full border-2 border-yellow-500"

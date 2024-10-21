@@ -1,4 +1,5 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import Image from 'next/image';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 
 export default function NetworkButton() {
@@ -34,9 +35,9 @@ export default function NetworkButton() {
                       gap: 8,
                     }}
                   >
-                    <img
+                    <Image
                       alt={chain.name ?? 'Chain icon'}
-                      src={chain.iconUrl}
+                      src={chain.iconUrl || ''}
                       style={{ width: 24, height: 24 }}
                     />
                   </div>

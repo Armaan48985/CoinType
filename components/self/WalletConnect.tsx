@@ -4,7 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { RiLogoutBoxRLine } from 'react-icons/ri';
 import BattleDialog from './BattleDialog';
 
-const WalletConnect = ({openBattleDialog, setOpenBattleDialog}:any) => {
+const WalletConnect = ({
+  openBattleDialog,
+  setOpenBattleDialog,
+}: {
+  openBattleDialog: boolean;
+  setOpenBattleDialog: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const [openDialog, setOpenDialog] = useState(false);
 
   
@@ -86,7 +92,7 @@ const WalletConnect = ({openBattleDialog, setOpenBattleDialog}:any) => {
                             style={{ backgroundColor: chain.iconBackground }}
                             >
                             {chain?.iconUrl && (
-                                <img
+                                <Image
                                 alt={chain?.name ?? 'Chain icon'}
                                 src={chain?.iconUrl}
                                 className="w-full h-full"

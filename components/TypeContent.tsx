@@ -1,6 +1,19 @@
 import React from "react";
 
-const TypeContent = ({
+interface TypeContentProps {
+  started: boolean; // Indicates if the typing has started
+  remainingTime: number; // Time remaining in seconds
+  selectedTime: number; // Selected time duration for typing
+  finalText: string[][]; // Array of arrays of strings (words and spaces)
+  currentIndex: number; // Current index of the character being typed
+  pressed: boolean;
+  errorIndexes: number[]; // Array of indexes where errors occurred
+  isCorrect: boolean; // Indicates if the current typed character is correct
+  upward: number; // Indicates if text is scrolling upward
+  battle: boolean; // Indicates if it’s a typing battle
+}
+
+const TypeContent: React.FC<TypeContentProps> = ({
   started,
   remainingTime,
   selectedTime,
@@ -38,11 +51,10 @@ const TypeContent = ({
             ) : (
               <div className="flex flex-wrap">
               {finalText.map((wordArray: string[], mainIndex: number) => {
-                    const step = finalText[mainIndex].length; // Length of the current word
                     return (
                       <div key={mainIndex} className="flex mr-1">
                         {wordArray.map((char: string, charIndex: number) => {
-                          const absoluteIndex = finalText.slice(0, mainIndex).reduce((acc:any, arr:any) => acc + arr.length, 0) + charIndex;
+                    const absoluteIndex = finalText.slice(0, mainIndex).reduce((acc: number, arr: string[]) => acc + arr.length, 0) + charIndex;           
                           return (
                             <span 
                               key={`${mainIndex}-${charIndex}`}

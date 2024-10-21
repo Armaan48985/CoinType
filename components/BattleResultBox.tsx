@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { ParamType } from "@/app/battle/BattlePage";
+import { ParamType } from "@/app/battle/page";
 import { BattleDataType } from "./self/BattleDialog";
 import supabase from "@/app/supabase";
 import { Button } from "./ui/button";
-import { useSendTransaction } from "wagmi";
 import { useRouter } from "next/navigation";
 import { ethers } from "ethers";
 

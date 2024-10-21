@@ -7,7 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { textObject } from '../page';
 import { BattleDataType } from '@/components/self/BattleDialog';
-import { getData, markReady, setStatus } from '../ImportantFunc';
+import { gen, getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
 import BattleResultBox from '@/components/BattleResultBox';
 import PlayerDetails from '@/components/PlayerDetails';
@@ -21,8 +21,7 @@ const BattlePage = () => {
     battleId: '',
     address: '',
   });
-  const [text] = useState(`Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod est iste cumque modi consequatur nam possimus facilis iusto vel aperiam neque, architecto reiciendis, laboriosam exercitationem debitis facere? Aperiam reprehenderit sapiente, voluptate explicabo voluptates laborum ratione, tempore odit non labore ipsam culpa dolores magnam cupiditate, sint ut ipsa amet rem totam`)
-  const [finalText, setFinalText] = useState<textObject[]>([])
+  const [finalText, setFinalText] = useState<string[][]>([])
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,6 +55,44 @@ const BattlePage = () => {
       }
   }, [currentIndex, charArray, typedText, battleStarted]);
 
+  const fetchData = async () => {
+    try {
+      const data = await gen();
+      console.log('raw data', data);
+  
+      const regex = /\[.*?\]/;
+      const match = data.match(regex);
+  
+      if (match) {
+        const arrayStr = match[0];
+        const arr: string[] = JSON.parse(arrayStr) as string[];
+  
+        const newCharArrays: string[][] = arr.flatMap((word: string) => [
+          Array.from(word), 
+          [' '] 
+        ]).slice(0, -1)
+  
+        const charArray: string[] = arr.flatMap((word: string) => [
+          ...Array.from(word), 
+          ' ' 
+        ]);
+  
+        if (charArray[charArray.length - 1] === '') {
+          charArray.pop();
+        }
+  
+        setFinalText(newCharArrays); 
+        setCharArray(charArray); 
+      } else {
+        console.log("No array found in the string.");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+    useEffect(() => {
+      fetchData()
+    });
 
   useEffect(() => {
     if (remainingTime === 0 || openBattleDialog) {
@@ -82,21 +119,7 @@ const BattlePage = () => {
       if(count == 0) setShowResult(true)
       clearInterval(timerInterval!);
   };
-  
-  useEffect(() => {
-    const maxCharsPerBlock = 60;
-    const formattedText: textObject[] = [];
 
-    for (let i = 0; i < text.length; i += maxCharsPerBlock) {
-      const block = text.slice(i, i + maxCharsPerBlock).split(''); 
-      formattedText.push({ chars: block }); 
-    }
-
-    setFinalText(formattedText);
-
-    setCharArray(text.split(''));
-
-  }, [text])
 
   const handleKeyPress = (event: any) => {
     if(openBattleDialog){
@@ -308,7 +331,6 @@ const BattlePage = () => {
                   errorIndexes={errorIndexes} 
                   isCorrect={isCorrect}
                   upward={upward}
-                  setUpward={setUpward}
                   battle={true}
                 />
               </div>

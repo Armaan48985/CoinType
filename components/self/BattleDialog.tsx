@@ -10,7 +10,18 @@ import { MdContentCopy } from "react-icons/md";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import supabase from "@/app/supabase";
 import { LuSwords } from "react-icons/lu";
+import Image from "next/image";
 
+
+interface HandleInsertsPayload {
+  new: BattleData; // The new battle data structure
+}
+
+interface BattleData {
+  player1: string; // Assuming player1 is a string (address or identifier)
+  player2: string; // Assuming player2 is a string (address or identifier)
+  // Add any additional properties that might exist in battleData
+}
 export type BattleDataType = {
   invite_code: string;
   eth_amount: string;
@@ -89,9 +100,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   useEffect(() => {
-    const handleInserts = (payload: any) => {
-      console.log('Change received:', payload);
-
+    const handleInserts = (payload: HandleInsertsPayload) => {
       const { new: battleData } = payload;
       const participant = addressRef.current;
       const code = generatedInviteCode || enteredInviteCode;
@@ -220,7 +229,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
         return (
           <div className="">
             <div className="z-10 flex justify-center">
-              <img
+              <Image
                 src="/swords-unscreen.gif"
                 alt="Swords Clashing"
                 width="80"

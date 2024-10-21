@@ -10,11 +10,10 @@ import { RiArrowRightSLine } from "react-icons/ri";
 import { gen } from './ImportantFunc';
 
 export type textObject = {
-  chars: String[]; 
+  chars: string[]; 
 };
 
 export default function Home() {
-  const [text, setText] = useState('')
   const [finalText, setFinalText] = useState<string[][]>([])
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
@@ -73,21 +72,16 @@ export default function Home() {
       console.error("Error fetching data:", error);
     }
   };
-  
-  
-  
-  
     useEffect(() => {
       fetchData()
     }, []);
 
     const handleNextLesson = () => {
-      setText('')
       setFinalText([])
       fetchData();
     };
 
-  const handleKeyPress = (event: any) => {
+  const handleKeyPress = (event: KeyboardEvent) => {
     if(openBattleDialog){
       return;
     };
@@ -114,9 +108,6 @@ export default function Home() {
     
     const expectedChar = charArray[currentIndex];
     const inputChar = pressedKey;
-
-
-    console.log(expectedChar, inputChar)
 
     if(!openBattleDialog){
       if (pressedKey === ' ') {
@@ -253,7 +244,6 @@ useEffect(() => {
             errorIndexes={errorIndexes} 
             isCorrect={isCorrect}
             upward={upward}
-            setUpward={setUpward}
             battle={false}
           />
         </div>
