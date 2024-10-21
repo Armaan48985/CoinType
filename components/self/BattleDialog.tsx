@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { Button } from "../ui/button";
@@ -460,7 +460,8 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <Suspense fallback={<div>Loading...</div>}>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-[#D4D4D8] relative p-8 rounded-xl shadow-lg font-mono w-[550px]">
         <div className="modal-content h-full">
           {renderDialogContent()}
@@ -490,6 +491,7 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
         </div>
       </div>
     </div>
+  </Suspense>
   );
 };
 
