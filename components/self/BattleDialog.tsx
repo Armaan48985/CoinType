@@ -1,16 +1,12 @@
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { Button } from "../ui/button";
 import NetworkButton from "./NetworkButton";
-import { Span } from "next/dist/trace";
 import { checkInviteCode, player2Join, sendCode } from "@/app/ImportantFunc";
 import { useAccount, useSendTransaction } from "wagmi";
 import { parseEther } from "viem";
-import { MdContentCopy, MdFileCopy } from "react-icons/md";
-import { Input } from "../ui/input";
-import { ethers, id } from "ethers";
+import { MdContentCopy } from "react-icons/md";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import supabase from "@/app/supabase";
 import { LuSwords } from "react-icons/lu";
@@ -47,10 +43,8 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
     status : joiningStatus,
   } = useSendTransaction();
   const { address, isConnected, chain } = useAccount();
-  const [isStartBattleSuccess, setIsStartBattleSuccess] = useState(false);
-  const [isJoinBattleSuccess, setIsJoinBattleSuccess] = useState(false);
+  const [isStartBattleSuccess] = useState(false);
   const router = useRouter();
-  const [battleStarts, setBattleStarts] = useState(false);
   const [ethError, setEthError] = useState(false);
 
 
@@ -73,7 +67,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
     setEthError(false);
 
     try {
-      const data = await startingTransaction({
+        await startingTransaction({
         to: "0xb50c2a93683b8dA575cD8f93602f3dB89a27A1e4",
         value: parseEther(ethAmount),
       });
@@ -91,8 +85,6 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
   useEffect(() => {
     addressRef.current = address;
   }, [address]);
-  
-  console.log(enteredInviteCode)
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -127,7 +119,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
   const confirmJoinBattle = async () => {
     try {
       if(battleDetails){
-        const data = await joiningTransaction({
+         await joiningTransaction({
           to: "0xb50c2a93683b8dA575cD8f93602f3dB89a27A1e4",
           value: parseEther(battleDetails?.eth_amount),
         });

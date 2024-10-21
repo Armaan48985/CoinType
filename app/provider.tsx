@@ -10,7 +10,6 @@ import {
   polygon,
   optimism,
   arbitrum,
-  base,
   sepolia,
 } from 'wagmi/chains';
 import {

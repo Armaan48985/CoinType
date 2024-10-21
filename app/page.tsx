@@ -1,14 +1,11 @@
 'use client';
 import Navbar from '@/components/Navbar';
 import ResultBox from '@/components/ResultBox';
-import BattleDialog from '@/components/self/BattleDialog';
 import { TooltipDemo } from '@/components/self/ToolTip';
 import TypeContent from '@/components/TypeContent';
 import VisualKeyboard from '@/components/VisualKeyboard';
-import { open } from 'node:inspector/promises';
 import { useEffect, useState } from 'react';
-import { FaCoins, FaRedoAlt } from 'react-icons/fa';
-import { MdOutlineNavigateNext } from 'react-icons/md';
+import { FaRedoAlt } from 'react-icons/fa';
 import { RiArrowRightSLine } from "react-icons/ri";
 import { gen } from './ImportantFunc';
 
@@ -41,11 +38,11 @@ export default function Home() {
       const data = await gen();
       console.log('raw data', data);
   
-      let regex = /\[.*?\]/;
-      let match = data.match(regex);
+      const regex = /\[.*?\]/;
+      const match = data.match(regex);
   
       if (match) {
-        let arrayStr = match[0];
+        const arrayStr = match[0];
         // Use a type assertion to specify the type of the parsed data
         const arr: string[] = JSON.parse(arrayStr) as string[];
   

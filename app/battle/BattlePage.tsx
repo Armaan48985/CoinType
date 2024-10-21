@@ -3,29 +3,25 @@ import TypeContent from '@/components/TypeContent';
 import { Button } from '@/components/ui/button';
 import VisualKeyboard from '@/components/VisualKeyboard';
 import Image from 'next/image';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { textObject } from '../page';
 import { BattleDataType } from '@/components/self/BattleDialog';
 import { getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
-import { IoCheckmarkSharp } from "react-icons/io5";
-import ResultBox from '@/components/ResultBox';
 import BattleResultBox from '@/components/BattleResultBox';
-import { clear } from 'console';
-import { useAccount } from 'wagmi';
 import PlayerDetails from '@/components/PlayerDetails';
 import { TooltipDemo } from '@/components/self/ToolTip';
 import { PiMoneyWavyBold } from "react-icons/pi";
 
 export type ParamType = { battleId: string; address: string }
 
-const page = () => {
+const BattlePage = () => {
   const [params, setParams] = useState<ParamType>({
     battleId: '',
     address: '',
   });
-  const [text, setText] = useState(`Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod est iste cumque modi consequatur nam possimus facilis iusto vel aperiam neque, architecto reiciendis, laboriosam exercitationem debitis facere? Aperiam reprehenderit sapiente, voluptate explicabo voluptates laborum ratione, tempore odit non labore ipsam culpa dolores magnam cupiditate, sint ut ipsa amet rem totam`)
+  const [text] = useState(`Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod est iste cumque modi consequatur nam possimus facilis iusto vel aperiam neque, architecto reiciendis, laboriosam exercitationem debitis facere? Aperiam reprehenderit sapiente, voluptate explicabo voluptates laborum ratione, tempore odit non labore ipsam culpa dolores magnam cupiditate, sint ut ipsa amet rem totam`)
   const [finalText, setFinalText] = useState<textObject[]>([])
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
@@ -41,7 +37,7 @@ const page = () => {
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [upward, setUpward] = useState(0);
-  const [openBattleDialog, setOpenBattleDialog] = useState(false);
+  const [openBattleDialog] = useState(false);
   const [battleDetails, setBattleDetails] = useState<BattleDataType>();
   const isPlayer1 = params.address == battleDetails?.player1;
   const [isPlayer2Ready, setIsPlayer2Ready] = useState(false);
@@ -176,7 +172,7 @@ const page = () => {
     } else {
       console.error('Missing battleId or address in URL params');
     }
-  }, []);
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -207,8 +203,6 @@ const page = () => {
               setShowTimer(true);
             }
           }
-
-          console.log('checking')
   
           if (payload.new.ready_status) {
             console.log('working')
@@ -221,7 +215,7 @@ const page = () => {
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, []);
+  });
   
   
   useEffect(() => {
@@ -387,4 +381,4 @@ const page = () => {
   );
 }
 
-export default page
+export default BattlePage

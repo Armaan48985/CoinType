@@ -5,7 +5,6 @@ export default function NetworkButton() {
   return (
     <ConnectButton.Custom>
       {({
-        account,
         chain,
         openChainModal,  // To open the network modal
         mounted,

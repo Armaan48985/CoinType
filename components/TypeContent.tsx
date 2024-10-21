@@ -1,5 +1,4 @@
-import { textObject } from "@/app/page";
-import React, { useEffect } from "react";
+import React from "react";
 
 const TypeContent = ({
   started,
@@ -10,7 +9,6 @@ const TypeContent = ({
   pressed,
   errorIndexes,
   isCorrect,
-  setUpward,
   upward,
   battle,
 }: any) => {

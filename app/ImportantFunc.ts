@@ -1,10 +1,8 @@
-import { parseEther } from "viem"
 import supabase from "./supabase"
-import { useSendTransaction } from "wagmi"
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const sendCode = async ({code, address, amount, chainName, time }:{code: string, address: string, amount: string, chainName: string, time: string}) => {
-    const {data, error} = await supabase.from('battle').insert({
+    const {data} = await supabase.from('battle').insert({
             invite_code: code,
             eth_amount: amount,
             player1: address,
@@ -71,12 +69,12 @@ export const checkInviteCode = async (code: string, player2_address: string) => 
 
 
 export const markReady = async (battleId: string) => {
-    const data = await supabase.from('battle').update({ ready_status: true }).eq('invite_code', battleId).select('*');
+    await supabase.from('battle').update({ ready_status: true }).eq('invite_code', battleId).select('*');
   };
 
 
   export const setStatus = async (Status: string, battleId: string) => {
-    const data = await supabase.from('battle').update({ status: Status }).eq('invite_code', battleId).select('*');
+    await supabase.from('battle').update({ status: Status }).eq('invite_code', battleId).select('*');
   }
 
   export const gen = async () => {

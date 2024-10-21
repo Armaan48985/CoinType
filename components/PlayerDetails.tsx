@@ -1,4 +1,4 @@
-import { useAccount, useEnsAvatar, useEnsName } from 'wagmi';
+import { useEnsAvatar, useEnsName } from 'wagmi';
 import blockies from 'ethereum-blockies-base64';
 
 

@@ -1,9 +1,8 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import React from 'react'
 import { FaCoins } from 'react-icons/fa'
 import WalletConnect from './self/WalletConnect'
 
-const Navbar = ({selectedTime, setSelectedTime, handleStart, started, openBattleDialog, setOpenBattleDialog}:any) => {
+const Navbar = ({selectedTime, setSelectedTime, openBattleDialog, setOpenBattleDialog}:any) => {
   
   return (
     <div className="p-10 flex-between px-28 mt-10 text-gray-300">
