@@ -15,23 +15,14 @@ interface PlayerDetailsProps {
   const identicon = blockies(address ?? '');
 
   return (
-    <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-md p-4 rounded-lg shadow-lg flex items-center space-x-4">
-      {/* Avatar */}
       <div className="relative">
         <img
           src={ensAvatar || identicon}
           alt="Player Avatar"
-          className="w-12 h-12 rounded-full border-2 border-yellow-500"
+          className="w-14 h-14 rounded-full border-2 border-yellow-500"
         />
-        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+        <span className="absolute bottom-1 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
       </div>
-
-      {/* Player Info */}
-      <div>
-        <p className="text-white font-semibold">{ensName || 'Player'}</p>
-        <p className="text-sm text-gray-300">Ready for battle</p>
-      </div>
-    </div>
   );
 };
 

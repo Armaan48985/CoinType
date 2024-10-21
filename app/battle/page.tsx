@@ -15,6 +15,8 @@ import BattleResultBox from '@/components/BattleResultBox';
 import { clear } from 'console';
 import { useAccount } from 'wagmi';
 import PlayerDetails from '@/components/PlayerDetails';
+import { TooltipDemo } from '@/components/self/ToolTip';
+import { PiMoneyWavyBold } from "react-icons/pi";
 
 export type ParamType = { battleId: string; address: string }
 
@@ -165,11 +167,6 @@ const page = () => {
     setPressed(false);
 };
 
-
-console.log(showResult, battleDetails)
-
-
-
   useEffect(() => {
     const battleId = searchParams.get('battleId');
     const address = searchParams.get('address');
@@ -262,7 +259,7 @@ console.log(showResult, battleDetails)
                 className={`w-[150px] h-[50px] font-bold text-gray-100 text-lg rounded-md bg-[#D7B633] 
                           hover:bg-[#f3cf3f] hover:text-red-500 
                           transition-transform transform uppercase
-                          ${isPlayer2Ready && params.address != battleDetails?.player1 ? 'text-red-500 bg-[#D7B633]' : 'animate-start'}`}>
+                          ${isPlayer2Ready && params.address != battleDetails?.player1 ? 'text-red-500' : 'animate-start'}`}>
                 {params.address == battleDetails?.player1 ? 'Start' : 'Ready'}
               </Button>
             )}
@@ -270,7 +267,34 @@ console.log(showResult, battleDetails)
 
           <Image src='/battle.png' width={40} height={40} alt='logo' />
 
-          <span className='bg-[#073b4c] text-sm p-3 rounded-lg'>{params.address.slice(0,9)}...</span>
+          <div>
+    
+               <div className='flex-center gap-2'>
+                      <TooltipDemo
+                        hoverText={
+                          <Image 
+                            src='/piggy-bank2.png' 
+                            alt='piggybank' 
+                            width={40} 
+                            height={40}
+                            className=''
+                          />
+                        }
+                        tooltipText={(
+                          <div className='flex-center gap-1 font-mono'>
+                            <p>Pool Money</p>
+                            <span className='rotate-[90deg] text-green-600'><PiMoneyWavyBold/></span>
+                          </div>
+                        )}
+                        hoverClass='cursor-pointer bg-transparent py-6 px-2'
+                        tooltipClass=''
+                      />
+                    <div className='bg-gray-900 flex-center gap-2 font-mono px-6 py-3 rounded-md text-gray-500 text-sm'>
+                      {battleDetails &&   (Number(battleDetails.eth_amount) * 2).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 7 })} Eth
+                    </div>
+               </div>
+        
+          </div>
         </div>
 
         <div className='w-full h-auto'>
@@ -300,32 +324,41 @@ console.log(showResult, battleDetails)
               </div>
           </div>
 
-          <div className='w-[350px] h-[200px] bg-gray-600 rounded-sm absolute bottom-5 right-5'>
-              <div className='relative w-full h-full  flex-center'>
-                {isPlayer1 && !isPlayer2Ready && message && (
-                  <p className='text-sm w-full text-red-500 absolute bottom-[12.5rem] right-0'>{message}</p>
-                )}
-                {isPlayer1 && isPlayer2Ready && (
-                  <Image 
-                    src='/flag.png' 
-                    width={20} 
-                    height={20} 
-                    alt='checkmark'
-                    className='absolute top-[-25px] left-[10px] rotate-[10deg]'  
-                  />
-                )}
-                <div>
-                  <p>player{isPlayer1 ? '2' : '1'}</p>
-                  <p>({isPlayer1 ? battleDetails.player2.slice(0,8) : battleDetails?.player1.slice(0,8)}...)</p>
-                </div>
+          <div className='w-[350px] h-[200px] bg-gray-800 rounded-sm absolute bottom-5 right-5'>
+              <div className='relative w-full h-full flex-center flex-col'>
+                {battleDetails ? (
+                  <div className=''>
+                    {isPlayer1 && !isPlayer2Ready && message && (
+                      <p className='text-sm w-full text-red-500 absolute bottom-[12.5rem] right-[-5px]'>{message}</p>
+                    )}
 
-                {battleDetails && (
-                    <div>
-                     <PlayerDetails address={isPlayer1 ? battleDetails.player2 : battleDetails?.player1} />
-                    </div>
+                    {isPlayer1 && isPlayer2Ready && (
+                      <Image 
+                        src='/flag.png' 
+                        width={28} 
+                        height={28} 
+                        alt='checkmark'
+                        className='absolute top-[-20px] left-[10px]'  
+                      />
+                    )}
+
+                   <div className='flex-center flex-col gap-2'>
+                        <PlayerDetails address={isPlayer1 ? battleDetails.player2 : battleDetails.player1} />
+                        <div className='text-center'>
+                          <p>Player {isPlayer1 ? '2' : '1'}</p>
+                          <p className='text-sm text-gray-400'>({isPlayer1 ? battleDetails.player2.slice(0, 8) : battleDetails.player1.slice(0, 8)}...)</p>
+                        </div>
+                   </div>
+
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="w-10 h-10 border-5 border-t-5 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
                 )}
               </div>
-          </div>
+            </div>
+
         </div>
 
         {showTimer && (

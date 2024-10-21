@@ -1,6 +1,7 @@
 import { parseEther } from "viem"
 import supabase from "./supabase"
 import { useSendTransaction } from "wagmi"
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const sendCode = async ({code, address, amount, chainName, time }:{code: string, address: string, amount: string, chainName: string, time: string}) => {
     const {data, error} = await supabase.from('battle').insert({
@@ -77,3 +78,17 @@ export const markReady = async (battleId: string) => {
   export const setStatus = async (Status: string, battleId: string) => {
     const data = await supabase.from('battle').update({ status: Status }).eq('invite_code', battleId).select('*');
   }
+
+  export const gen = async () => {
+    try {
+      const genAI = new GoogleGenerativeAI('AIzaSyDH_01KRcsFwZoVShvP5UiFGYhku-7CR7A');
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const finalPrompt = 'Give me an array of 100 good words from stories. The result should start with [ and end with ].';
+      const result = await model.generateContent(finalPrompt);
+
+      return result.response.text();
+    } catch (error) {
+      console.error('Error generating content:', error);
+      return 'An error occurred while generating content.';
+    }
+  };

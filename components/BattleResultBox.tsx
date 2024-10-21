@@ -37,10 +37,24 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   const [player2WPM, setPlayer2WPM] = useState<number | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [prizeSent, setPrizeSent] = useState(false);
+  const isPlayer1 = params.address == battleDetails?.player1;
   const {
     sendTransaction ,
     status
   } = useSendTransaction();
+  const [isLoading, setIsLoading] = useState(false); // Track if the transaction is in progress
+
+  const handleClaimPrize = async () => {
+    setIsLoading(true); // Start loading when the button is clicked
+    try {
+      await sendPrize(); // Call the function to send the prize
+    } catch (error) {
+      console.error('Transaction failed:', error);
+    } finally {
+      setIsLoading(false); // Stop loading when transaction completes
+    }
+  };
+
 
   const calculateWPM = () => {
     const totalWords = typedText.trim().split(/\s+/).length;
@@ -129,7 +143,6 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
         (payload) => {
           const { player1_result, player2_result } = payload.new;
   
-          // Check if the new results are different from the existing ones
           const isPlayer1Changed = player1_result !== player1WPM;
           const isPlayer2Changed = player2_result !== player2WPM;
   
@@ -182,72 +195,77 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-    <div className="relative w-[450px] min-h-[340px] p-8 bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl border border-gray-700">
-      <div className="flex-center mb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-wide">
-          Battle Results
-        </h1>
-      </div>
-  
-      {player1WPM && player2WPM ? (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-300">Player 1 WPM:</h2>
-            <p className="text-2xl font-bold text-cyan-400">{player1WPM}</p>
-          </div>
-  
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-300">Player 2 WPM:</h2>
-            <p className="text-2xl font-bold text-cyan-400">{player2WPM}</p>
-          </div>
-  
-          <div className="flex-center flex-col">
-            <p className={`text-4xl font-bold ${winner === params.address ? 'text-green-400' : 'text-red-400'}`}>
-              {winner === params.address ? 'You Won!' : 'You Lost'}
-             
-            </p>
-            {winner === params.address && (
-                <p className="text-sm text-white">
-                  (You get <span className="font-bold text-cyan-300">{(Number(battleDetails.eth_amount) * 2).toFixed()}</span> ETH)
-                </p>
-              )}
-          </div>
-  
-          {winner === params.address ? (
-            <div className="text-center">
-              <Button
-                className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
-                onClick={sendPrize}
-              >
-                {prizeSent ? 'Go to Home Page' : 'Send Prize'}
-              </Button>
-            </div>
-          ) : (
-              <Button
-                className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
-                onClick={() => router.push('/')}
-                >Go to Home Page
-                </Button>
-          )}
-
-          {prizeSent && (
-            <div className="text-center">
-              <p className="text-green-400">Prize sent successfully</p>
-            </div>
-          )}
-        </div>
-      ) : (
+      {(winner === '' || winner === null) && (player1WPM && player2WPM) ? (
+        // Loading Spinner
         <div className="flex items-center justify-center h-48">
           <div className="relative w-24 h-24">
             <div className="absolute inset-0 rounded-full border-4 border-t-transparent border-b-cyan-400 animate-spin"></div>
             <div className="absolute inset-0 rounded-full border-4 border-l-transparent border-r-pink-500 animate-spin-slow"></div>
           </div>
         </div>
+      ) : winner === params.address ? (
+        // Winner Box
+        <div className="relative w-[450px]  p-8 bg-gray-800 rounded-2xl shadow-2xl font-mono">
+          <div className="text-center mb-6">
+            <h1 className="text-4xl font-bold text-green-400">You Won!! 🎉😺</h1>
+          </div>
+
+          <div>
+            <h1>Your Score : {wpm}</h1>
+            <h1>{isPlayer1 ? `Player2 Score: ${battleDetails.player2_result}` : `Player1 Score: ${battleDetails.player1_result}`}</h1>
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-lg text-gray-300">
+              You earned {" "}
+              <span className="font-bold text-cyan-300">
+                {(Number(battleDetails.eth_amount) * 2).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 7 })} ETH
+              </span>!
+            </p>
+            <Button
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
+            onClick={handleClaimPrize}
+            disabled={isLoading}
+          >
+            {isLoading
+              ? 'Wait for transaction...'
+              : prizeSent
+              ? 'Go to Home Page'
+              : 'Claim Prize'}
+          </Button>
+            {prizeSent && (
+              <p className="text-center text-green-400 mt-4">Prize sent successfully!</p>
+            )}
+          </div>
+        </div>
+      ) : (
+        // Loser Box
+        <div className="relative w-[450px] p-8 bg-gray-800 rounded-2xl shadow-2xl font-mono">
+          <div className="text-center mb-6">
+            <h1 className="text-4xl font-bold text-red-400">You Lost!! 😿</h1>
+          </div>
+
+          <div>
+            <h1>Your Score : {wpm}</h1>
+            <h1>{isPlayer1 ? `Player2 Score: ${player2WPM}` : `Player1 Score: ${battleDetails.player1_result}`}</h1>
+          </div>
+
+
+          <div className="space-y-4">
+            <p className="text-lg text-gray-300">Better luck next time!</p>
+            <Button
+              className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded-lg shadow-md transition-transform transform hover:scale-105"
+              onClick={() => router.push('/')}
+            >
+              Go to Home Page
+            </Button>
+          </div>
+        </div>
       )}
     </div>
-  </div>
-  
   );
+  
+  
 };
 
 export default BattleResultBox;

@@ -1,5 +1,5 @@
-import { textObject } from '@/app/page';
-import React, { useEffect } from 'react';
+import { textObject } from "@/app/page";
+import React, { useEffect } from "react";
 
 const TypeContent = ({
   started,
@@ -10,80 +10,74 @@ const TypeContent = ({
   pressed,
   errorIndexes,
   isCorrect,
-  setUpward, 
+  setUpward,
   upward,
-  battle
+  battle,
 }: any) => {
 
-  const step = finalText[0]?.chars.length;
-
-  useEffect(() => {
-    const baseIndex = step*2;
-
-    if (currentIndex+1 > baseIndex) {
-      const additionalShifts = Math.floor((currentIndex - baseIndex) / step);
-      setUpward(55 * (1 + additionalShifts));
-    }
-  }, [currentIndex]);
-  
   return (
     <div className="flex-center flex-col">
-      <div className="relative max-w-[1000px]">
+      <div className="relative max-w-[1200px]">
         {!battle && (
           <div className="absolute top-[-3rem] left-[0] right-0 text-slate-200 text-3xl">
-          {started ? remainingTime : selectedTime}
-        </div>
+            {started ? remainingTime : selectedTime}
+          </div>
         )}
-        <div className="overflow-hidden max-w-[1000px]">
-          {/* Apply dynamic inline style for translateY */}
+        <div className="overflow-hidden max-w-[1200px]">
           <div
-            className='max-h-[150px]'
+            className="max-h-[150px]"
             style={{
-              transform: `translateY(-${upward}px)`, // Dynamically shift the lines
-              transition: 'transform 0.3s ease-in-out', // Smooth transition
+              transform: `translateY(-${upward}px)`,
+              transition: "transform 0.3s ease-in-out",
             }}
           >
-           {!finalText.length ? (
-                 <div className="flex justify-center items-center h-[200px]">
-                 <div className="relative w-10 h-10">
-                   <span className="absolute inline-block w-full h-full rounded-full border-4 border-t-transparent border-white animate-spin"></span>
-                 </div>
-               </div>
-                ) : (
-  // Render finalText when it's loaded
-  finalText.map((block: any, blockIndex: number) => (
-    <div key={blockIndex} className="flex">
-      {block.chars.map((char: any, charIndex: number) => (
-        <span
-          key={`${blockIndex}-${charIndex}`} // Unique key combining block and char index
-          className={`mr-[1px] font-[500] text-[28px] ${
-            blockIndex * step + charIndex === currentIndex && !pressed
-              ? 'bg-yellow-500 text-white'
-              : blockIndex * step + charIndex < currentIndex
-              ? errorIndexes.includes(blockIndex * step + charIndex)
-                ? 'text-[#F94E4E]'
-                : 'text-[#2E428A] text-opacity-70'
-              : 'text-slate-100'
-          } ${
-            blockIndex * step + charIndex === currentIndex && !isCorrect
-              ? 'bg-red-500'
-              : 'bg-transparent'
-          } py-1 duration-100 px-[2px] rounded`}
-        >
-          {char}
-        </span>
-      ))}
-    </div>
-  ))
-)}
+            {!finalText.length ? (
+              <div className="flex justify-center items-center h-[200px]">
+                <div className="relative w-10 h-10">
+                  <span className="absolute inline-block w-full h-full rounded-full border-4 border-t-transparent border-white animate-spin"></span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-wrap">
+              {finalText.map((wordArray: string[], mainIndex: number) => {
+                    const step = finalText[mainIndex].length; // Length of the current word
+                    return (
+                      <div key={mainIndex} className="flex mr-1">
+                        {wordArray.map((char: string, charIndex: number) => {
+                          const absoluteIndex = finalText.slice(0, mainIndex).reduce((acc:any, arr:any) => acc + arr.length, 0) + charIndex;
+                          return (
+                            <span 
+                              key={`${mainIndex}-${charIndex}`}
+                              style={char === ' ' ? { paddingLeft: '4px', paddingRight: '4px' } : {}}
+                              className={`mr-[1px] font-[500] text-[28px] ${
+                                absoluteIndex === currentIndex && !pressed
+                                  ? "bg-yellow-500 text-white"
+                                  : absoluteIndex < currentIndex
+                                  ? errorIndexes.includes(absoluteIndex)
+                                    ? "text-[#F94E4E]"
+                                    : "text-[#2E428A] text-opacity-70"
+                                  : "text-slate-100"
+                              } ${
+                                absoluteIndex === currentIndex && !isCorrect
+                                  ? "bg-red-500"
+                                  : "bg-transparent"
+                              } py-1 duration-75 px-[2px] rounded`}
+                            >
+                              {char}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
 
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 };
-
-
 
 export default TypeContent;

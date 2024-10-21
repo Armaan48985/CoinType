@@ -10,14 +10,15 @@ import { useEffect, useState } from 'react';
 import { FaCoins, FaRedoAlt } from 'react-icons/fa';
 import { MdOutlineNavigateNext } from 'react-icons/md';
 import { RiArrowRightSLine } from "react-icons/ri";
+import { gen } from './ImportantFunc';
 
 export type textObject = {
-  chars: string[]; // Array of characters for each line/block
+  chars: String[]; 
 };
 
 export default function Home() {
-  const [text, setText] = useState(`Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod est iste cumque modi consequatur nam possimus facilis iusto vel aperiam neque, architecto reiciendis, laboriosam exercitationem debitis facere? Aperiam reprehenderit sapiente, voluptate explicabo voluptates laborum ratione, tempore odit non labore ipsam culpa dolores magnam cupiditate, sint ut ipsa amet rem totam`)
-  const [finalText, setFinalText] = useState<textObject[]>([])
+  const [text, setText] = useState('')
+  const [finalText, setFinalText] = useState<string[][]>([])
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -34,26 +35,63 @@ export default function Home() {
   const [upward, setUpward] = useState(0);
   const [openBattleDialog, setOpenBattleDialog] = useState(false);
 
-
-  useEffect(() => {
-    const maxCharsPerBlock = 60;
-    const formattedText: textObject[] = [];
-
-    for (let i = 0; i < text.length; i += maxCharsPerBlock) {
-      const block = text.slice(i, i + maxCharsPerBlock).split(''); 
-      formattedText.push({ chars: block }); 
+  
+  const fetchData = async () => {
+    try {
+      const data = await gen();
+      console.log('raw data', data);
+  
+      let regex = /\[.*?\]/;
+      let match = data.match(regex);
+  
+      if (match) {
+        let arrayStr = match[0];
+        // Use a type assertion to specify the type of the parsed data
+        const arr: string[] = JSON.parse(arrayStr) as string[];
+  
+        // Create the finalText array (as before)
+        const newCharArrays: string[][] = arr.flatMap((word: string) => [
+          Array.from(word), 
+          [' '] 
+        ]).slice(0, -1); // Remove the last space added after the last word
+  
+        // Create a new charArray with characters including empty strings for spaces
+        const charArray: string[] = arr.flatMap((word: string) => [
+          ...Array.from(word), 
+          ' ' // Add an empty string for the space
+        ]);
+  
+        // Remove the last empty string added after the last word if needed
+        if (charArray[charArray.length - 1] === '') {
+          charArray.pop();
+        }
+  
+        // Update the states
+        setFinalText(newCharArrays); 
+        setCharArray(charArray); 
+      } else {
+        console.log("No array found in the string.");
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
     }
+  };
+  
+  
+  
+  
+    useEffect(() => {
+      fetchData()
+    }, []);
 
-    setFinalText(formattedText);
-
-    setCharArray(text.split(''));
-
-  }, [text])
+    const handleNextLesson = () => {
+      setText('')
+      setFinalText([])
+      fetchData();
+    };
 
   const handleKeyPress = (event: any) => {
-    console.log('open battle dialog', openBattleDialog) 
     if(openBattleDialog){
-      console.log('fku')
       return;
     };
     if (remainingTime === 0) return;
@@ -79,6 +117,9 @@ export default function Home() {
     
     const expectedChar = charArray[currentIndex];
     const inputChar = pressedKey;
+
+
+    console.log(expectedChar, inputChar)
 
     if(!openBattleDialog){
       if (pressedKey === ' ') {
@@ -132,7 +173,6 @@ export default function Home() {
 
   useEffect(() => {
     if(!openBattleDialog){
-      console.log('lksjdlfkjsdlkj')
       window.addEventListener('keydown', handleKeyPress);
       return () => {
         window.removeEventListener('keydown', handleKeyPress);
@@ -237,7 +277,7 @@ useEffect(() => {
                     />
                   </div>
 
-                  <div>
+                  <div onClick={handleNextLesson}>
                     <TooltipDemo 
                       hoverText={<RiArrowRightSLine />} 
                       tooltipText='Next Test'
@@ -246,9 +286,9 @@ useEffect(() => {
                   </div>
               </div>
 
-        {showResult && (
-          <ResultBox setShowResult={setShowResult} typedText={typedText} remainingTime={remainingTime} selectedTime={selectedTime} incorrectCount={incorrectCount} restart={restart}/>
-        )}
+            {showResult && (
+              <ResultBox setShowResult={setShowResult} typedText={typedText} remainingTime={remainingTime} selectedTime={selectedTime} incorrectCount={incorrectCount} restart={restart}/>
+            )}
 
     </div>
   );

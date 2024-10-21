@@ -51,6 +51,7 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
   const [isJoinBattleSuccess, setIsJoinBattleSuccess] = useState(false);
   const router = useRouter();
   const [battleStarts, setBattleStarts] = useState(false);
+  const [ethError, setEthError] = useState(false);
 
 
   const startBattle = async () => {
@@ -59,10 +60,17 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
       return;
     }
 
+    if(parseFloat(ethAmount) < 0.0000001) {
+      setEthError(true);
+      return;
+    }
+
     if (!ethAmount || isNaN(Number(ethAmount)) || parseFloat(ethAmount) <= 0) {
       console.error("Please enter a valid amount.");
       return false;
     }
+
+    setEthError(false);
 
     try {
       const data = await startingTransaction({
@@ -304,23 +312,32 @@ const BattleDialog = ({ setOpenBattleDialog }: any) => {
               </div>
             </div>
             <div className="flex-center gap-6 mt-10">
-              <div className="flex flex-col mr-8 gap-2">
-                <label className="text-gray-800 font-bold relative">
-                  {invalid && ethAmount == "" && (
-                    <span className="absolute top-[-5px] left-[-8px] text-red-500">
-                      *
-                    </span>
-                  )}
-                  Eth Amount:
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter ETH amount"
-                  className="w-[150px] pl-3 p-2 py-4 placeholder:text-sm text-xl bg-gray-700 outline-none rounded-md text-white"
-                  value={ethAmount}
-                  onChange={(e) => setEthAmount(e.target.value)}
-                />
-              </div>
+                  <div className="flex flex-col mr-8 gap-2 relative">
+                      <label className="text-gray-800 font-bold relative">
+                        {!ethAmount && invalid && (
+                          <span className="absolute top-[-5px] left-[-8px] text-red-500">
+                            *
+                          </span>
+                        )}
+                        Eth Amount:
+                      </label>
+                
+
+                      <input
+                        type="text"
+                        placeholder="Enter ETH amount"
+                        className="w-[150px] pl-3 p-2 py-4 placeholder:text-sm text-xl bg-gray-700 outline-none rounded-md text-white"
+                        value={ethAmount}
+                        onChange={(e) => setEthAmount(e.target.value)}
+                      />
+
+                            
+                      {ethError && (
+                        <p className="text-red-500 text-[10px]">
+                          *ETH amount cannot be <br/> lower than 10^(-6)
+                        </p>
+                      )}
+                    </div>
 
               <div className="w-[2px] bg-yellow-600 h-[100px]"></div>
 
