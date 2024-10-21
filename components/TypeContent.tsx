@@ -24,7 +24,7 @@ const TypeContent: React.FC<TypeContentProps> = ({
   isCorrect,
   upward,
   battle,
-}: any) => {
+}) => {
 
   return (
     <div className="flex-center flex-col">

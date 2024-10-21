@@ -16,6 +16,11 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
+import { ReactNode } from 'react';
+
+interface ProvidersProps {
+  children: ReactNode;
+}
 
 const config = getDefaultConfig({
     appName: 'My RainbowKit App',
@@ -26,7 +31,7 @@ const config = getDefaultConfig({
 
   const queryClient = new QueryClient();
 
-export const Providers = ({children}:any) => {
+export const Providers = ({children}: ProvidersProps) => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

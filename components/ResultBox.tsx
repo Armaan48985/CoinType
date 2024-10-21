@@ -14,7 +14,14 @@ interface ResultBoxProps {
   restart: () => void;
 }
 
-const ResultBox: React.FC<ResultBoxProps> = ({setShowResult, typedText, remainingTime, selectedTime, incorrectCount, restart}:any) => {
+const ResultBox: React.FC<ResultBoxProps> = ({setShowResult, typedText, remainingTime, selectedTime, incorrectCount, restart}:{
+  setShowResult: (show: boolean) => void;
+  typedText: string;
+  remainingTime: number;
+  selectedTime: number; 
+  incorrectCount: number;
+  restart: () => void;
+}) => {
 
     
   const calculateWPM = () => {

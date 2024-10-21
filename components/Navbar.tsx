@@ -2,7 +2,12 @@ import React from 'react'
 import { FaCoins } from 'react-icons/fa'
 import WalletConnect from './self/WalletConnect'
 
-const Navbar = ({selectedTime, setSelectedTime, openBattleDialog, setOpenBattleDialog}:any) => {
+const Navbar = ({selectedTime, setSelectedTime, openBattleDialog, setOpenBattleDialog}:{
+    selectedTime: number;
+    setSelectedTime: React.Dispatch<React.SetStateAction<number>>;
+    openBattleDialog: boolean;
+    setOpenBattleDialog: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   
   return (
     <div className="p-10 flex-between px-28 mt-10 text-gray-300">

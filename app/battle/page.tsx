@@ -5,9 +5,8 @@ import VisualKeyboard from '@/components/VisualKeyboard';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
-import { textObject } from '../page';
 import { BattleDataType } from '@/components/self/BattleDialog';
-import { gen, getData, markReady, setStatus } from '../ImportantFunc';
+import { getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
 import BattleResultBox from '@/components/BattleResultBox';
 import PlayerDetails from '@/components/PlayerDetails';
@@ -21,9 +20,67 @@ const BattlePage = () => {
     battleId: '',
     address: '',
   });
-  const [finalText, setFinalText] = useState<string[][]>([])
+  const [finalText, setFinalText] = useState<string[][]>(
+  [
+      ['H', 'e', 'l', 'l', 'o'],
+      [' '],
+      ['W', 'o', 'r', 'l', 'd'],
+      [' '],
+      ['T', 'y', 'p', 'e'],
+      [' '],
+      ['F', 'a', 's', 't'],
+      [' '],
+      ['C', 'o', 'd', 'e'],
+      [' '],
+      ['R', 'e', 'a', 'c', 't'],
+      [' '],
+      ['B', 'a', 't', 't', 'l', 'e'],
+      [' '],
+      ['J', 'a', 'v', 'a', 'S', 'c', 'r', 'i', 'p', 't'],
+      [' '],
+      ['C', 'h', 'a', 'l', 'l', 'e', 'n', 'g', 'e'],
+      [' '],
+      ['D', 'e', 'b', 'u', 'g'],
+      [' '],
+      ['L', 'e', 'a', 'r', 'n'],
+      [' '],
+      ['W', 'i', 'n'],
+      [' '],
+      ['S', 'm', 'a', 'r', 't'],
+      [' '],
+      ['Q', 'u', 'i', 'c', 'k'],
+      [' '],
+      ['S', 'o', 'l', 'v', 'e'],
+      [' '],
+      ['E', 'x', 'p', 'l', 'o', 'r', 'e'],
+      [' '],
+      ['B', 'u', 'i', 'l', 'd'],
+      [' '],
+      ['I', 'n', 'v', 'e', 'n', 't'],
+      [' '],
+      ['I', 'n', 'i', 't', 'i', 'a', 't', 'e'],
+      [' '],
+      ['T', 'e', 's', 't'],
+      [' '],
+      ['I', 'm', 'p', 'r', 'o', 'v', 'e'],
+      [' '],
+      ['F', 'l', 'o', 'w'],
+      [' '],
+      ['D', 'e', 'v', 'e', 'l', 'o', 'p'],
+      [' '],
+      ['S', 'u', 'c', 'c', 'e', 's', 's'],
+      [' '],
+      ['P', 'r', 'o', 'g', 'r', 'e', 's', 's'],
+      [' '],
+      ['E', 'x', 'p', 'e', 'r', 't'],
+      [' '],
+      ['V', 'i', 'c', 't', 'o', 'r', 'y'],
+      [' '],
+      ['C', 'o', 'n', 'q', 'u', 'e', 'r'],
+    ]
+  )
   const [started, setStarted] = useState(false);
-  const [charArray, setCharArray] = useState<string[]>([]);
+  const [charArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCorrect, setIsCorrect] = useState(true);
   const [typedText, setTypedText] = useState('');
@@ -35,7 +92,7 @@ const BattlePage = () => {
   const [keyPressed, setKeyPressed] = useState<string | null>(null);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [upward, setUpward] = useState(0);
+  const [upward] = useState(0);
   const [openBattleDialog] = useState(false);
   const [battleDetails, setBattleDetails] = useState<BattleDataType>();
   const isPlayer1 = params.address == battleDetails?.player1;
@@ -55,44 +112,44 @@ const BattlePage = () => {
       }
   }, [currentIndex, charArray, typedText, battleStarted]);
 
-  const fetchData = async () => {
-    try {
-      const data = await gen();
-      console.log('raw data', data);
+  // const fetchData = async () => {
+  //   try {
+  //     const data = await gen();
+  //     console.log('raw data', data);
   
-      const regex = /\[.*?\]/;
-      const match = data.match(regex);
+  //     const regex = /\[.*?\]/;
+  //     const match = data.match(regex);
   
-      if (match) {
-        const arrayStr = match[0];
-        const arr: string[] = JSON.parse(arrayStr) as string[];
+  //     if (match) {
+  //       const arrayStr = match[0];
+  //       const arr: string[] = JSON.parse(arrayStr) as string[];
   
-        const newCharArrays: string[][] = arr.flatMap((word: string) => [
-          Array.from(word), 
-          [' '] 
-        ]).slice(0, -1)
+  //       const newCharArrays: string[][] = arr.flatMap((word: string) => [
+  //         Array.from(word), 
+  //         [' '] 
+  //       ]).slice(0, -1)
   
-        const charArray: string[] = arr.flatMap((word: string) => [
-          ...Array.from(word), 
-          ' ' 
-        ]);
+  //       const charArray: string[] = arr.flatMap((word: string) => [
+  //         ...Array.from(word), 
+  //         ' ' 
+  //       ]);
   
-        if (charArray[charArray.length - 1] === '') {
-          charArray.pop();
-        }
+  //       if (charArray[charArray.length - 1] === '') {
+  //         charArray.pop();
+  //       }
   
-        setFinalText(newCharArrays); 
-        setCharArray(charArray); 
-      } else {
-        console.log("No array found in the string.");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-    useEffect(() => {
-      fetchData()
-    });
+  //       setFinalText(newCharArrays); 
+  //       setCharArray(charArray); 
+  //     } else {
+  //       console.log("No array found in the string.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
+  //   useEffect(() => {
+  //     fetchData()
+  //   });
 
   useEffect(() => {
     if (remainingTime === 0 || openBattleDialog) {
@@ -121,7 +178,7 @@ const BattlePage = () => {
   };
 
 
-  const handleKeyPress = (event: any) => {
+  const handleKeyPress = (event: KeyboardEvent) => {
     if(openBattleDialog){
       return;
     };

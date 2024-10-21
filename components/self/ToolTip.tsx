@@ -6,7 +6,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export function TooltipDemo({hoverText, tooltipText, hoverClass, tooltipClass}:any) {
+interface TooltipDemoProps {
+  hoverText?: React.ReactNode;
+  tooltipText?: React.ReactNode; // Accepts string, icon, or any JSX element
+  hoverClass?: string;
+  tooltipClass?: string;
+}
+
+export function TooltipDemo({
+  hoverText = "Hover me",
+  tooltipText = "Tooltip content",
+  hoverClass = "",
+  tooltipClass = "",
+}: TooltipDemoProps) {
   return (
     <TooltipProvider>
       <Tooltip delayDuration={2}>

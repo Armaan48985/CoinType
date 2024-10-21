@@ -227,8 +227,6 @@ useEffect(() => {
         <Navbar 
           selectedTime={selectedTime} 
           setSelectedTime={setSelectedTime} 
-          handleStart={handleStart} 
-          started={started}
           openBattleDialog={openBattleDialog}
           setOpenBattleDialog={setOpenBattleDialog}
         />

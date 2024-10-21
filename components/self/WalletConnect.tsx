@@ -26,11 +26,6 @@ const WalletConnect = ({
         const isConnected = account && chain;
         const isWrongNetwork = chain?.unsupported;
 
-        useEffect(() => {
-            if (!isConnected) {
-              setOpenDialog(false);
-            }
-          }, [isConnected]);
 
         return (
           <div className="relative flex items-center">
