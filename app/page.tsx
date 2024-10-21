@@ -73,7 +73,7 @@ export default function Home() {
       ]
     )
   const [started, setStarted] = useState(false);
-  const [charArray, setCharArray] = useState<string[]>([]);
+  const [charArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCorrect, setIsCorrect] = useState(true);
   const [typedText, setTypedText] = useState('');
