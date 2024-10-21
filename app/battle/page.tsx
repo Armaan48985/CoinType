@@ -287,7 +287,6 @@ useEffect(() => {
 
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
     <div className='text-white'>
         <div className='w-full flex-between p-6 px-16 mt-8'>
          <div>
@@ -422,9 +421,16 @@ useEffect(() => {
 
 
     </div>
-    </Suspense>
   );
   
 }
 
-export default BattlePage
+const BattlePageWithSuspense = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BattlePage />
+    </Suspense>
+  );
+};
+
+export default BattlePageWithSuspense;
