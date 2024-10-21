@@ -79,7 +79,7 @@ export const markReady = async (battleId: string) => {
 
   export const gen = async () => {
     try {
-      const genAI = new GoogleGenerativeAI('AIzaSyDH_01KRcsFwZoVShvP5UiFGYhku-7CR7A');
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       const finalPrompt = 'Give me an array of 100 good words from stories. The result should start with [ and end with ].';
       const result = await model.generateContent(finalPrompt);

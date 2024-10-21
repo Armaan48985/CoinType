@@ -7,14 +7,71 @@ import VisualKeyboard from '@/components/VisualKeyboard';
 import { useEffect, useState } from 'react';
 import { FaRedoAlt } from 'react-icons/fa';
 import { RiArrowRightSLine } from "react-icons/ri";
-import { gen } from './ImportantFunc';
 
 export type textObject = {
   chars: string[]; 
 };
 
 export default function Home() {
-  const [finalText, setFinalText] = useState<string[][]>([])
+  const [finalText] = useState<string[][]>(
+    [
+        ['H', 'e', 'l', 'l', 'o'],
+        [' '],
+        ['W', 'o', 'r', 'l', 'd'],
+        [' '],
+        ['T', 'y', 'p', 'e'],
+        [' '],
+        ['F', 'a', 's', 't'],
+        [' '],
+        ['C', 'o', 'd', 'e'],
+        [' '],
+        ['R', 'e', 'a', 'c', 't'],
+        [' '],
+        ['B', 'a', 't', 't', 'l', 'e'],
+        [' '],
+        ['J', 'a', 'v', 'a', 'S', 'c', 'r', 'i', 'p', 't'],
+        [' '],
+        ['C', 'h', 'a', 'l', 'l', 'e', 'n', 'g', 'e'],
+        [' '],
+        ['D', 'e', 'b', 'u', 'g'],
+        [' '],
+        ['L', 'e', 'a', 'r', 'n'],
+        [' '],
+        ['W', 'i', 'n'],
+        [' '],
+        ['S', 'm', 'a', 'r', 't'],
+        [' '],
+        ['Q', 'u', 'i', 'c', 'k'],
+        [' '],
+        ['S', 'o', 'l', 'v', 'e'],
+        [' '],
+        ['E', 'x', 'p', 'l', 'o', 'r', 'e'],
+        [' '],
+        ['B', 'u', 'i', 'l', 'd'],
+        [' '],
+        ['I', 'n', 'v', 'e', 'n', 't'],
+        [' '],
+        ['I', 'n', 'i', 't', 'i', 'a', 't', 'e'],
+        [' '],
+        ['T', 'e', 's', 't'],
+        [' '],
+        ['I', 'm', 'p', 'r', 'o', 'v', 'e'],
+        [' '],
+        ['F', 'l', 'o', 'w'],
+        [' '],
+        ['D', 'e', 'v', 'e', 'l', 'o', 'p'],
+        [' '],
+        ['S', 'u', 'c', 'c', 'e', 's', 's'],
+        [' '],
+        ['P', 'r', 'o', 'g', 'r', 'e', 's', 's'],
+        [' '],
+        ['E', 'x', 'p', 'e', 'r', 't'],
+        [' '],
+        ['V', 'i', 'c', 't', 'o', 'r', 'y'],
+        [' '],
+        ['C', 'o', 'n', 'q', 'u', 'e', 'r'],
+      ]
+    )
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,53 +89,53 @@ export default function Home() {
   const [openBattleDialog, setOpenBattleDialog] = useState(false);
 
   
-  const fetchData = async () => {
-    try {
-      const data = await gen();
-      console.log('raw data', data);
+  // const fetchData = async () => {
+  //   try {
+  //     const data = await gen();
+  //     console.log('raw data', data);
   
-      const regex = /\[.*?\]/;
-      const match = data.match(regex);
+  //     const regex = /\[.*?\]/;
+  //     const match = data.match(regex);
   
-      if (match) {
-        const arrayStr = match[0];
-        // Use a type assertion to specify the type of the parsed data
-        const arr: string[] = JSON.parse(arrayStr) as string[];
+  //     if (match) {
+  //       const arrayStr = match[0];
+  //       // Use a type assertion to specify the type of the parsed data
+  //       const arr: string[] = JSON.parse(arrayStr) as string[];
   
-        // Create the finalText array (as before)
-        const newCharArrays: string[][] = arr.flatMap((word: string) => [
-          Array.from(word), 
-          [' '] 
-        ]).slice(0, -1); // Remove the last space added after the last word
+  //       // Create the finalText array (as before)
+  //       const newCharArrays: string[][] = arr.flatMap((word: string) => [
+  //         Array.from(word), 
+  //         [' '] 
+  //       ]).slice(0, -1); // Remove the last space added after the last word
   
-        // Create a new charArray with characters including empty strings for spaces
-        const charArray: string[] = arr.flatMap((word: string) => [
-          ...Array.from(word), 
-          ' ' // Add an empty string for the space
-        ]);
+  //       // Create a new charArray with characters including empty strings for spaces
+  //       const charArray: string[] = arr.flatMap((word: string) => [
+  //         ...Array.from(word), 
+  //         ' ' // Add an empty string for the space
+  //       ]);
   
-        // Remove the last empty string added after the last word if needed
-        if (charArray[charArray.length - 1] === '') {
-          charArray.pop();
-        }
+  //       // Remove the last empty string added after the last word if needed
+  //       if (charArray[charArray.length - 1] === '') {
+  //         charArray.pop();
+  //       }
   
-        // Update the states
-        setFinalText(newCharArrays); 
-        setCharArray(charArray); 
-      } else {
-        console.log("No array found in the string.");
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-    useEffect(() => {
-      fetchData()
-    }, []);
+  //       // Update the states
+  //       setFinalText(newCharArrays); 
+  //       setCharArray(charArray); 
+  //     } else {
+  //       console.log("No array found in the string.");
+  //     }
+  //   } catch (parseError) {
+  //     console.error("Failed to parse JSON:", parseError);
+  // }
+  // };
+  //   useEffect(() => {
+  //     fetchData()
+  //   }, []);
 
     const handleNextLesson = () => {
-      setFinalText([])
-      fetchData();
+      // fetchData();
+      console.log('next lesson')
     };
 
   const handleKeyPress = (event: KeyboardEvent) => {
