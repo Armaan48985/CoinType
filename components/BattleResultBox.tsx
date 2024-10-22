@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { ParamType } from "@/app/battle/page";
 import { BattleDataType } from "./self/BattleDialog";
 import supabase from "@/app/supabase";
@@ -59,7 +59,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     }
   };
 
-  const updateWinner = async (winnerName: string) => {
+  const updateWinner =  useCallback (async(winnerName: string) => {
     try {
       const { error } = await supabase
         .from("battle")
@@ -72,9 +72,9 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     } catch (error) {
       console.error("Error updating winner:", error);
     }
-  };
+  }, [wpm, accuracy]);
 
-  const determineWinner = (wpm1: number, wpm2: number) => {
+  const determineWinner = useCallback((wpm1: number, wpm2: number) => {
     let winner = "";
 
     if (wpm1 > wpm2) {
@@ -86,11 +86,11 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     }
 
     updateWinner(winner);
-  };
+  }, [player1WPM, player2WPM]);
 
   useEffect(() => {
     if (wpm !== null && accuracy !== null) sendResult();
-  }, [wpm, accuracy, sendResult]);
+  }, [wpm, accuracy]);
 
   useEffect(() => {
     const subscription = supabase
@@ -124,7 +124,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     return () => {
       supabase.removeChannel(subscription);
     };
-  }, [player1WPM, player2WPM, determineWinner]);
+  }, [player1WPM, player2WPM]);
 
   const provider = new ethers.JsonRpcProvider(
     "https://rpc.walletconnect.com/v1/?chainId=eip155:11155111&projectId=735705f1a66fe187ed955c8f9e16164d"

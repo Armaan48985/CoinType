@@ -237,7 +237,7 @@ useEffect(() => {
       console.log('No words typed or no correct words');
     }
   }
-}, [showResult, correctWordCount, typedWords]);
+}, [showResult, correctWordCount, typedWords, typedCharactersCount, selectedTime, errorIndexes]);
 
 useEffect(() => {
   if(battleStarted){
@@ -312,7 +312,7 @@ useEffect(() => {
       setBattleStarted(true);
       if(!showResult) startTimer();
     }
-  }, [showTimer, count]);
+  }, [showTimer, count, battleStarted, showResult, startTimer]);
 
   const handleStartReady = async () => {
     if (isPlayer1) {

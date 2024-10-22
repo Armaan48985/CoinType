@@ -176,7 +176,7 @@ export default function Home() {
     }
   };
 
-  function handleKeyPress(event: KeyboardEvent) {
+  const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if(openBattleDialog) return;
     if (remainingTime === 0) return;
     const pressedKey = event.key;
@@ -249,7 +249,7 @@ export default function Home() {
 
     }
     setPressed(false);
-};
+}, [openBattleDialog, currentIndex, typedText, errorIndexes, charArray, currentWord, currentWordIndex, typedCharactersCount, started]);
 
   const restart = () => {
     if(started){
@@ -275,7 +275,7 @@ export default function Home() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-  }, [openBattleDialog, handleKeyPress]);
+  }, [openBattleDialog]);
 
 
   const handleStart = (start:boolean) => {
@@ -294,9 +294,9 @@ export default function Home() {
     }
  };
 
- const handleEndTest = () => {
+ const handleEndTest = useCallback(() => {
   setShowResult(true);
-};
+}, []);
 
 useEffect(() => {
   if (showResult) {
@@ -309,7 +309,7 @@ useEffect(() => {
       console.log('No words typed or no correct words');
     }
   }
-}, [showResult, correctWordCount, typedWords]);
+}, [showResult, correctWordCount, typedWords, typedCharactersCount, selectedTime, errorIndexes]);
 
 const startTimer = useCallback(() => {
   if (timerInterval) clearInterval(timerInterval);
@@ -334,7 +334,7 @@ useEffect(() => {
   else if(!openBattleDialog && started){
     startTimer;
   }
-}, [openBattleDialog, startTimer]);
+}, [openBattleDialog, startTimer, timerInterval, started]);
 
  
   
