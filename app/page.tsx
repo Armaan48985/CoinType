@@ -204,7 +204,7 @@ export default function Home() {
 
     if(!openBattleDialog){
       if (pressedKey === ' ') {
-        handleWordInput(currentWord, currentIndex);
+        handleWordInput(currentWord, currentWordIndex);
         setTypedText((prev) => prev + currentWord + ' ');
         setCurrentWord('');
         setCurrentWordIndex((prevIndex) => prevIndex + 1); 
@@ -297,6 +297,7 @@ export default function Home() {
  const handleEndTest = () => {
   setShowResult(true);
 };
+
 useEffect(() => {
   if (showResult) {
     if (correctWordCount > 0 && typedWords.length > 0) {

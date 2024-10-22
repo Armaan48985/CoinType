@@ -184,7 +184,7 @@ const BattlePage = () => {
 
     if(!openBattleDialog){
       if (pressedKey === ' ') {
-        handleWordInput(currentWord, currentIndex);
+        handleWordInput(currentWord, currentWordIndex);
         setTypedText((prev) => prev + currentWord + ' ');
         setCurrentWord('');
         setCurrentWordIndex((prevIndex) => prevIndex + 1); 
