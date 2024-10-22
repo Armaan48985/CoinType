@@ -132,7 +132,7 @@ const BattlePage = () => {
       });
     }, 1000);
     setTimerInterval(interval);
-  }, [timerInterval]);
+  }, [timerInterval, handleEndTest]);
 
   useEffect(() => {
     const initialCharArray = finalText.flat().join('').split('');
@@ -246,7 +246,7 @@ useEffect(() => {
     window.removeEventListener('keydown', handleKeyPress)
   }
 }
-}, [currentIndex, charArray, typedText, handleKeyPress, battleStarted]);
+}, [handleKeyPress, battleStarted]);
 
   useEffect(() => {
     const battleId = searchParams.get('battleId');

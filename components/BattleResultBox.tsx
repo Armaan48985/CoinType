@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ParamType } from "@/app/battle/page";
 import { BattleDataType } from "./self/BattleDialog";
 import supabase from "@/app/supabase";
@@ -39,9 +39,23 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     }
   };
 
+  const determineWinner = (wpm1: number, wpm2: number) => {
+    let winner = "";
+
+    if (wpm1 > wpm2) {
+      setWinner(battleDetails?.player1);
+      winner = battleDetails?.player1;
+    } else if (wpm1 < wpm2) {
+      setWinner(battleDetails?.player2);
+      winner = battleDetails?.player2;
+    }
+
+    if(!newBattleDetails?.winner) updateWinner(winner);
+  };
+
   useEffect(() => {
     const fetchResult = async () => {
-      const { data, error } = await supabase.from("battle").select('*').eq("invite_code", params.battleId); 
+      const { data } = await supabase.from("battle").select('*').eq("invite_code", params.battleId); 
       
       if(data){
         const a = data[0].player1_result;
@@ -69,7 +83,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
       }
 
       
-  }, [battleDetails])
+  }, [battleDetails, params.battleId, determineWinner])
 
 
   const sendResult = async () => {
@@ -106,23 +120,11 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     }
   };
 
-  const determineWinner = (wpm1: number, wpm2: number) => {
-    let winner = "";
-
-    if (wpm1 > wpm2) {
-      setWinner(battleDetails?.player1);
-      winner = battleDetails?.player1;
-    } else if (wpm1 < wpm2) {
-      setWinner(battleDetails?.player2);
-      winner = battleDetails?.player2;
-    }
-
-    if(!newBattleDetails?.winner) updateWinner(winner);
-  };
+  
 
   useEffect(() => {
     if (wpm !== null && accuracy !== null) sendResult();
-  }, [wpm, accuracy]);
+  }, [wpm, accuracy, sendResult]);
 
 
 

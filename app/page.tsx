@@ -275,7 +275,7 @@ export default function Home() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-  }, [openBattleDialog, currentIndex, handleKeyPress]);
+  }, [openBattleDialog, handleKeyPress]);
 
 
   const handleStart = (start:boolean) => {
