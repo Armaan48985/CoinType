@@ -176,26 +176,7 @@ export default function Home() {
     }
   };
 
-  
-
-  const handleStart = (start:boolean) => {
-    if (start) {
-       clearInterval(timerInterval!);
-       setStarted(false);
-       setCurrentIndex(0);
-       setTypedText('');
-       setErrorIndexes([]);
-       setRemainingTime(selectedTime);
-       setUpward(0);
-    } else {
-       setStarted(true);
-       setRemainingTime(selectedTime);
-       startTimer();
-    }
- };
-
-
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
+  function handleKeyPress(event: KeyboardEvent) {
     if(openBattleDialog) return;
     if (remainingTime === 0) return;
     const pressedKey = event.key;
@@ -262,13 +243,13 @@ export default function Home() {
         setErrorIndexes([...errorIndexes, currentIndex]);
         setIsCorrect(false);
         setCurrentIndex(currentIndex + 1); 
-        setIncorrectCount(incorrectCount => incorrectCount + 1);
+        setIncorrectCount(incorrectCount + 1);
       }
       setTypedCharactersCount((prevCount) => prevCount + 1);
 
     }
     setPressed(false);
-}, [openBattleDialog, currentIndex, typedText, errorIndexes, charArray, currentWord, currentWordIndex, typedCharactersCount, started, handleStart, handleWordInput, incorrectCount, remainingTime]);
+};
 
   const restart = () => {
     if(started){
@@ -294,11 +275,28 @@ export default function Home() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-  }, [openBattleDialog, handleKeyPress]);
+  }, [currentIndex, charArray, typedText, handleKeyPress, openBattleDialog]);
 
- const handleEndTest = useCallback(() => {
+
+  const handleStart = (start:boolean) => {
+    if (start) {
+       clearInterval(timerInterval!);
+       setStarted(false);
+       setCurrentIndex(0);
+       setTypedText('');
+       setErrorIndexes([]);
+       setRemainingTime(selectedTime);
+       setUpward(0);
+    } else {
+       setStarted(true);
+       setRemainingTime(selectedTime);
+       startTimer();
+    }
+ };
+
+ const handleEndTest = () => {
   setShowResult(true);
-}, []);
+};
 
 useEffect(() => {
   if (showResult) {
@@ -311,7 +309,7 @@ useEffect(() => {
       console.log('No words typed or no correct words');
     }
   }
-}, [showResult, correctWordCount, typedWords, typedCharactersCount, selectedTime, errorIndexes]);
+}, [showResult, correctWordCount, typedWords, typedCharactersCount, errorIndexes, selectedTime]);
 
 const startTimer = useCallback(() => {
   if (timerInterval) clearInterval(timerInterval);
@@ -336,7 +334,7 @@ useEffect(() => {
   else if(!openBattleDialog && started){
     startTimer();
   }
-}, [openBattleDialog, startTimer, timerInterval, started]);
+}, [openBattleDialog, startTimer, started, timerInterval]);
 
  
   
