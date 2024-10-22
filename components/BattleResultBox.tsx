@@ -5,28 +5,20 @@ import supabase from "@/app/supabase";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { ethers } from "ethers";
+import { ResultType } from "@/app/page";
 
 interface BattleResultBoxProps {
-  setShowResult: (show: boolean) => void;
-  typedText: string;
-  remainingTime: number;
-  selectedTime: number;
-  incorrectCount: number;
-  setBattleDetails: (details: BattleDataType) => void;
+  result: ResultType;
   params: ParamType;
   battleDetails: BattleDataType;
 }
 
 const BattleResultBox: React.FC<BattleResultBoxProps> = ({
-  typedText,
-  remainingTime,
-  selectedTime,
-  incorrectCount,
+  result,
   params,
   battleDetails,
 }) => {
-  const [wpm, setWpm] = useState<number | null>(null);
-  const [accuracy, setAccuracy] = useState<number | null>(null);
+  const {wpm , accuracy} = result;
   const [player1WPM, setPlayer1WPM] = useState<number | null>(null);
   const [player2WPM, setPlayer2WPM] = useState<number | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
@@ -45,22 +37,6 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     }
   };
 
-  const calculateWPM = () => {
-    const totalWords = typedText.trim().split(/\s+/).length;
-    const timeTakenInSeconds = selectedTime - remainingTime;
-    const timeTakenInMinutes = timeTakenInSeconds / 60;
-    const calculatedWPM =
-      timeTakenInMinutes > 0 ? Math.round(totalWords / timeTakenInMinutes) : 0;
-    setWpm(calculatedWPM);
-  };
-
-  const calculateAccuracy = () => {
-    const totalChars = typedText.length;
-    const correctChars = totalChars - incorrectCount;
-    const calculatedAccuracy =
-      totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
-    setAccuracy(calculatedAccuracy);
-  };
 
   const sendResult = async () => {
     const isPlayer1 = params.address === battleDetails?.player1;
@@ -109,15 +85,8 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
       winner = battleDetails?.player2;
     }
 
-    console.log(wpm1, wpm2, winner);
-
     updateWinner(winner);
   };
-
-  useEffect(() => {
-    calculateWPM();
-    calculateAccuracy();
-  }, [calculateAccuracy, calculateWPM]);
 
   useEffect(() => {
     if (wpm !== null && accuracy !== null) sendResult();
@@ -187,7 +156,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      {(winner === "" || winner === null) && player1WPM && player2WPM ? (
+      {(winner === "" || winner === null) && !(player1WPM && player2WPM) ? (
         // Loading Spinner
         <div className="flex items-center justify-center h-48">
           <div className="relative w-24 h-24">
@@ -208,8 +177,8 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
             <h1>Your Score : {wpm}</h1>
             <h1>
               {isPlayer1
-                ? `Player2 Score: ${battleDetails.player2_result}`
-                : `Player1 Score: ${battleDetails.player1_result}`}
+                ? `Player2 Score: ${player2WPM}`
+                : `Player1 Score: ${player1WPM}`}
             </h1>
           </div>
 

@@ -21,6 +21,8 @@ interface PlayerDetailsProps {
           src={ensAvatar || identicon}
           alt="Player Avatar"
           className="w-14 h-14 rounded-full border-2 border-yellow-500"
+          width={10}
+          height={10}
         />
         <span className="absolute bottom-1 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
       </div>

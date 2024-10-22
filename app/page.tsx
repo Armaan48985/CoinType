@@ -4,13 +4,18 @@ import ResultBox from '@/components/ResultBox';
 import { TooltipDemo } from '@/components/self/ToolTip';
 import TypeContent from '@/components/TypeContent';
 import VisualKeyboard from '@/components/VisualKeyboard';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FaRedoAlt } from 'react-icons/fa';
 import { RiArrowRightSLine } from "react-icons/ri";
 
 export type textObject = {
   chars: string[]; 
 };
+
+export type ResultType = {
+  wpm: number;
+  accuracy: number;
+}
 
 export default function Home() {
   const [finalText] = useState<string[][]>(
@@ -73,7 +78,7 @@ export default function Home() {
       ]
     )
   const [started, setStarted] = useState(false);
-  const [charArray] = useState<string[]>([]);
+  const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isCorrect, setIsCorrect] = useState(true);
   const [typedText, setTypedText] = useState('');
@@ -87,8 +92,30 @@ export default function Home() {
   const [showResult, setShowResult] = useState(false);
   const [upward, setUpward] = useState(0);
   const [openBattleDialog, setOpenBattleDialog] = useState(false);
-
+  const [flattenWordText, setFlattenWordText] = useState<string[]>([]);
+  const [typedWords, setTypedWords] = useState<string[]>([]);
+  const [correctWordCount, setCorrectWordCount] = useState(0);
+  const [currentWord, setCurrentWord] = useState(''); // Track the current word being typed
+  const [currentWordIndex, setCurrentWordIndex] = useState(0); // Track word index
+  const [correctCharactersCount, setCorrectCharactersCount] = useState(0);
+  const [typedCharactersCount, setTypedCharactersCount] = useState(0); // To track total characters typed
+  const [result, setResult] = useState<ResultType>({
+    wpm: 0,
+    accuracy: 0
+  })
   
+
+  useEffect(() => {
+    const initialCharArray = finalText.flat().join('').split('');
+    setCharArray(initialCharArray);
+    setFlattenWordText(flattenWords(finalText));
+  }, [finalText]);
+
+  const flattenWords = (text: string[][]): string[] => {
+    return text
+      .map((chars) => chars.join('')) // Join characters into strings
+      .filter((word) => word.trim() !== ''); // Ignore spaces
+  };
   // const fetchData = async () => {
   //   try {
   //     const data = await gen();
@@ -133,58 +160,78 @@ export default function Home() {
   //     fetchData()
   //   }, []);
 
+
+
+
     const handleNextLesson = () => {
       // fetchData();
       console.log('next lesson')
     };
 
-  const handleKeyPress = (event: KeyboardEvent) => {
-    if(openBattleDialog){
-      return;
-    };
+    
+  const handleWordInput = (inputWord: string, currentIndex: number) => {
+    setTypedWords((prev) => [...prev, inputWord]);
+
+    if (inputWord === flattenWordText[currentWordIndex]) {
+      setCorrectWordCount((prevCount) => prevCount + 1);
+    }
+  };
+
+  function handleKeyPress (event: KeyboardEvent) {
+    if(openBattleDialog) return;
     if (remainingTime === 0) return;
     const pressedKey = event.key;
     setKeyPressed(pressedKey);
 
-    setTimeout(() => {
-        setKeyPressed(null);
-    }, 100);
+    setTimeout(() => setKeyPressed(null), 100);
 
     if (pressedKey === 'Backspace') {
-        event.preventDefault();
-        if (currentIndex > 0) {
-            setCurrentIndex(currentIndex - 1);
-            setTypedText(typedText.slice(0, -1));
-            setErrorIndexes(errorIndexes.filter(index => index !== currentIndex - 1));
-        }
-        return;
-    }
+      event.preventDefault();
+      setCurrentWord((prev) => prev.slice(0, -1));
+      if (currentIndex > 0) {
+        setCurrentIndex(currentIndex - 1);
+        setTypedText(typedText.slice(0, -1));
+        setErrorIndexes(errorIndexes.filter(index => index !== currentIndex - 1));
+        setTypedCharactersCount((prevCount) => prevCount - 1);
+      }
 
-    
+      return;
+    } 
     if (pressedKey.length > 1 && pressedKey !== ' ') return;
     
     const expectedChar = charArray[currentIndex];
     const inputChar = pressedKey;
+  
 
     if(!openBattleDialog){
       if (pressedKey === ' ') {
+        handleWordInput(currentWord, currentIndex);
+        setTypedText((prev) => prev + currentWord + ' ');
+        setCurrentWord('');
+        setCurrentWordIndex((prevIndex) => prevIndex + 1); 
+      } else{
+        setCurrentWord((prev) => prev + pressedKey);
+      }
+
+      if (pressedKey === ' ') {
         if (expectedChar === ' ') {
-            setTypedText(typedText + ' ');
             setCurrentIndex(currentIndex + 1);
             setIsCorrect(true);
-        } else {
+
+          } else {
             setErrorIndexes([...errorIndexes, currentIndex]);
             setIsCorrect(false);
             setCurrentIndex(currentIndex + 1); 
-        }
-        event.preventDefault();
-        setPressed(false);
-        return;
+          }
+          setTypedCharactersCount((prevCount) => prevCount + 1);
+          event.preventDefault();
+          setPressed(false);
+          return;
     }
 
     if(!started) {
       setStarted(true);
-      handleStart(started)
+      handleStart(false)
     }
 
     setPressed(true);
@@ -198,7 +245,8 @@ export default function Home() {
         setIsCorrect(false);
         setCurrentIndex(currentIndex + 1); 
         setIncorrectCount(incorrectCount + 1);
-    }
+      }
+      setTypedCharactersCount((prevCount) => prevCount + 1);
 
     }
     setPressed(false);
@@ -213,6 +261,11 @@ export default function Home() {
       setErrorIndexes([]);
       setRemainingTime(selectedTime);
       setUpward(0);
+      setShowResult(false)
+      setCorrectWordCount(0)
+      setCurrentWordIndex(0)
+      setCurrentWord('')
+      setTypedWords([])
     }
   }
 
@@ -223,7 +276,7 @@ export default function Home() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-  }, [currentIndex, charArray, typedText, started, openBattleDialog, handleKeyPress]);
+  }, [openBattleDialog, handleKeyPress]);
 
 
   const handleStart = (start:boolean) => {
@@ -239,11 +292,26 @@ export default function Home() {
        setStarted(true);
        setRemainingTime(selectedTime);
        startTimer();
-       console.log('again wrong')
     }
  };
 
- const startTimer = () => {
+ const handleEndTest = () => {
+  setShowResult(true);
+};
+useEffect(() => {
+  if (showResult) {
+    if (correctWordCount > 0 && typedWords.length > 0) {
+      const wpm = (typedCharactersCount / 5) / (selectedTime / 60);
+      const correctCharCount = typedCharactersCount - errorIndexes.length;
+      const accuracy = Math.round((correctCharCount / typedCharactersCount) * 100);
+      setResult({ wpm, accuracy });
+    } else {
+      console.log('No words typed or no correct words');
+    }
+  }
+}, [showResult, correctWordCount, typedWords]);
+
+const startTimer = useCallback(() => {
   if (timerInterval) clearInterval(timerInterval);
   const interval = setInterval(() => {
     setRemainingTime((prevTime) => {
@@ -256,31 +324,26 @@ export default function Home() {
     });
   }, 1000);
   setTimerInterval(interval);
-};
+}, [handleEndTest, timerInterval]);
+ 
 
 useEffect(() => {
   if(openBattleDialog){
     clearInterval(timerInterval!);
   }
   else if(!openBattleDialog && started){
-    startTimer();
+    startTimer;
   }
 }, [openBattleDialog, startTimer]);
 
  
   
-  const handleEndTest = () => {
-    if(typedText){
-      setShowResult(true)
-    }
-  };
 
-   
- useEffect(() => {
-  if (remainingTime === 0 || openBattleDialog) {
-    handleEndTest();
-  }
-}, [remainingTime, openBattleDialog, handleEndTest]);
+//  useEffect(() => {
+//   if (remainingTime === 0 || openBattleDialog) {
+//     handleEndTest;
+//   }
+// }, [remainingTime, openBattleDialog, handleEndTest]);
 
 
   return (
@@ -313,7 +376,7 @@ useEffect(() => {
 
         <div className='flex-center gap-6 mt-7'>
                   <div 
-                    onClick={() => {setShowResult(false); restart()}}
+                    onClick={restart}
                     className=''
                   >
                     <TooltipDemo 
@@ -333,7 +396,7 @@ useEffect(() => {
               </div>
 
             {showResult && (
-              <ResultBox setShowResult={setShowResult} typedText={typedText} remainingTime={remainingTime} selectedTime={selectedTime} incorrectCount={incorrectCount} restart={restart}/>
+              <ResultBox setShowResult={setShowResult} result={result} restart={restart}/>
             )}
 
     </div>

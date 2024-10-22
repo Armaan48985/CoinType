@@ -236,8 +236,8 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
               <Image
                 src="/swords-unscreen.gif"
                 alt="Swords Clashing"
-                width="80"
-                height="80"
+                width={80}
+                height={80}
                 className="rotate-180"
               />
             </div>

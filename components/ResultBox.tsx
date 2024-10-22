@@ -3,43 +3,14 @@ import { FaRedoAlt } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io'
 import { MdOutlineNavigateNext } from 'react-icons/md';
 import { TooltipDemo } from './self/ToolTip';
+import { ResultType } from '@/app/page';
 
 
-interface ResultBoxProps {
+const ResultBox = ({setShowResult,  result, restart}:{
   setShowResult: (show: boolean) => void;
-  typedText: string;
-  remainingTime: number;
-  selectedTime: number; 
-  incorrectCount: number;
-  restart: () => void;
-}
-
-const ResultBox: React.FC<ResultBoxProps> = ({setShowResult, typedText, remainingTime, selectedTime, incorrectCount, restart}:{
-  setShowResult: (show: boolean) => void;
-  typedText: string;
-  remainingTime: number;
-  selectedTime: number; 
-  incorrectCount: number;
+  result: ResultType;
   restart: () => void;
 }) => {
-
-    
-  const calculateWPM = () => {
-    const totalWordsTyped = typedText.trim().split(' ').filter((word:string) =>  word !== '').length;    
-    const timeTakenInSeconds = selectedTime - remainingTime; 
-    const timeTakenInMinutes = timeTakenInSeconds / 60;
-
-    const wpm = timeTakenInMinutes > 0 ? Math.round(totalWordsTyped / timeTakenInMinutes) : 0;
-    return timeTakenInSeconds > 0 ? wpm * (60 / timeTakenInSeconds) : 0; 
-};
-
-    const calculateAccuracy = () => {
-        const totalChars = typedText.length;
-        const correctChars = totalChars - incorrectCount; 
-        if(correctChars <= 0) return 0;
-        return totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
-    };
-
 
      return (
         <div className="fixed inset-0 bg-black font-mono bg-opacity-70 flex items-center justify-center z-50">
@@ -56,11 +27,11 @@ const ResultBox: React.FC<ResultBoxProps> = ({setShowResult, typedText, remainin
               <div className="space-y-6">
                 <div className="flex gap-3 items-center">
                   <h2 className="text-xl font-medium text-gray-300">Words Per Minute :</h2>
-                  <p className="text-2xl font-bold text-blue-400">{calculateWPM()}</p>
+                  <p className="text-2xl font-bold text-blue-400">{result.wpm}</p>
                 </div>
                 <div className="flex gap-3 items-center">
                   <h2 className="text-xl font-medium text-gray-300">Accuracy :</h2>
-                  <p className="text-2xl font-bold text-blue-400">{calculateAccuracy()}%</p>
+                  <p className="text-2xl font-bold text-blue-400">{result.accuracy}%</p>
                 </div>
               </div>
 

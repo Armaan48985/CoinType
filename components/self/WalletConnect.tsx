@@ -88,9 +88,11 @@ const WalletConnect = ({
                             >
                             {chain?.iconUrl && (
                                 <Image
-                                alt={chain?.name ?? 'Chain icon'}
-                                src={chain?.iconUrl}
-                                className="w-full h-full"
+                                  alt={chain?.name ?? 'Chain icon'}
+                                  src={chain?.iconUrl}
+                                  className="w-full h-full"
+                                  width={5}
+                                  height={5}
                                 />
                             )}
                             </div>
