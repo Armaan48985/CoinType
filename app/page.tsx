@@ -176,6 +176,25 @@ export default function Home() {
     }
   };
 
+  
+
+  const handleStart = (start:boolean) => {
+    if (start) {
+       clearInterval(timerInterval!);
+       setStarted(false);
+       setCurrentIndex(0);
+       setTypedText('');
+       setErrorIndexes([]);
+       setRemainingTime(selectedTime);
+       setUpward(0);
+    } else {
+       setStarted(true);
+       setRemainingTime(selectedTime);
+       startTimer();
+    }
+ };
+
+
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if(openBattleDialog) return;
     if (remainingTime === 0) return;
@@ -243,13 +262,13 @@ export default function Home() {
         setErrorIndexes([...errorIndexes, currentIndex]);
         setIsCorrect(false);
         setCurrentIndex(currentIndex + 1); 
-        setIncorrectCount(incorrectCount + 1);
+        setIncorrectCount(incorrectCount => incorrectCount + 1);
       }
       setTypedCharactersCount((prevCount) => prevCount + 1);
 
     }
     setPressed(false);
-}, [openBattleDialog, currentIndex, typedText, errorIndexes, charArray, currentWord, currentWordIndex, typedCharactersCount, started]);
+}, [openBattleDialog, currentIndex, typedText, errorIndexes, charArray, currentWord, currentWordIndex, typedCharactersCount, started, handleStart, handleWordInput, incorrectCount, remainingTime]);
 
   const restart = () => {
     if(started){
@@ -275,24 +294,7 @@ export default function Home() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-  }, [openBattleDialog]);
-
-
-  const handleStart = (start:boolean) => {
-    if (start) {
-       clearInterval(timerInterval!);
-       setStarted(false);
-       setCurrentIndex(0);
-       setTypedText('');
-       setErrorIndexes([]);
-       setRemainingTime(selectedTime);
-       setUpward(0);
-    } else {
-       setStarted(true);
-       setRemainingTime(selectedTime);
-       startTimer();
-    }
- };
+  }, [openBattleDialog, handleKeyPress]);
 
  const handleEndTest = useCallback(() => {
   setShowResult(true);
@@ -332,7 +334,7 @@ useEffect(() => {
     clearInterval(timerInterval!);
   }
   else if(!openBattleDialog && started){
-    startTimer;
+    startTimer();
   }
 }, [openBattleDialog, startTimer, timerInterval, started]);
 

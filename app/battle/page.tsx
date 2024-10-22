@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import VisualKeyboard from '@/components/VisualKeyboard';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useState } from 'react'
 import { BattleDataType } from '@/components/self/BattleDialog';
 import { getData, markReady, setStatus } from '../ImportantFunc';
 import supabase from '../supabase';
@@ -119,7 +119,7 @@ const BattlePage = () => {
       clearInterval(timerInterval!);
   };
 
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     if (timerInterval) clearInterval(timerInterval);
     const interval = setInterval(() => {
       setRemainingTime((prevTime) => {
@@ -132,7 +132,7 @@ const BattlePage = () => {
       });
     }, 1000);
     setTimerInterval(interval);
-  };
+  }, [timerInterval]);
 
   useEffect(() => {
     const initialCharArray = finalText.flat().join('').split('');
@@ -246,7 +246,7 @@ useEffect(() => {
     window.removeEventListener('keydown', handleKeyPress)
   }
 }
-}, [currentIndex, charArray, typedText, handleKeyPress]);
+}, [currentIndex, charArray, typedText, handleKeyPress, battleStarted]);
 
   useEffect(() => {
     const battleId = searchParams.get('battleId');
@@ -312,7 +312,7 @@ useEffect(() => {
       setBattleStarted(true);
       if(!showResult) startTimer();
     }
-  }, [showTimer, count, battleStarted, showResult, startTimer]);
+  }, [showTimer, count, battleStarted, showResult]);
 
   const handleStartReady = async () => {
     if (isPlayer1) {
