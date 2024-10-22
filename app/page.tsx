@@ -97,7 +97,6 @@ export default function Home() {
   const [correctWordCount, setCorrectWordCount] = useState(0);
   const [currentWord, setCurrentWord] = useState(''); // Track the current word being typed
   const [currentWordIndex, setCurrentWordIndex] = useState(0); // Track word index
-  const [correctCharactersCount, setCorrectCharactersCount] = useState(0);
   const [typedCharactersCount, setTypedCharactersCount] = useState(0); // To track total characters typed
   const [result, setResult] = useState<ResultType>({
     wpm: 0,
@@ -169,7 +168,7 @@ export default function Home() {
     };
 
     
-  const handleWordInput = (inputWord: string, currentIndex: number) => {
+  const handleWordInput = (inputWord: string, currentWordIndex: number) => {
     setTypedWords((prev) => [...prev, inputWord]);
 
     if (inputWord === flattenWordText[currentWordIndex]) {
@@ -177,7 +176,7 @@ export default function Home() {
     }
   };
 
-  function handleKeyPress (event: KeyboardEvent) {
+  function handleKeyPress(event: KeyboardEvent) {
     if(openBattleDialog) return;
     if (remainingTime === 0) return;
     const pressedKey = event.key;

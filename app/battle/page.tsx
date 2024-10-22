@@ -148,7 +148,7 @@ const BattlePage = () => {
   
 
 
-  const handleWordInput = (inputWord: string, currentIndex: number) => {
+  const handleWordInput = (inputWord: string, currentWordIndex: number) => {
     setTypedWords((prev) => [...prev, inputWord]);
 
     if (inputWord === flattenWordText[currentWordIndex]) {
