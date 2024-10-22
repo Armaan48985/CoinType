@@ -284,13 +284,24 @@ useEffect(() => {
           if (payload.new.status !== payload.old.status) {
             const newStatus = payload.new.status;
             if (newStatus === 'started') {
-              console.log('feelin it')
               setShowTimer(true);
             }
           }
+
+          if(payload.new.player1_result && payload.new.player2_result){
+            setBattleDetails((prev) => {
+              if (prev) {
+                return {
+                  ...prev,
+                  player1_result: payload.new.player1_result,
+                  player2_result: payload.new.player2_result,
+                };
+              }
+              return prev;
+            })
+          }
   
           if (payload.new.ready_status) {
-            console.log('working')
             setIsPlayer2Ready(true);
           }
         }

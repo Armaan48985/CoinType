@@ -32,6 +32,7 @@ export type BattleDataType = {
   chain: string;
   player1_result: string | null;
   player2_result: string | null;
+  winner: string;
 };
 
 interface BattleDialogProps {
