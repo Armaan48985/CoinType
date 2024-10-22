@@ -275,7 +275,7 @@ export default function Home() {
         window.removeEventListener('keydown', handleKeyPress);
       };
     }
-  }, [currentIndex, charArray, typedText, handleKeyPress, openBattleDialog]);
+  }, [openBattleDialog, currentIndex, handleKeyPress]);
 
 
   const handleStart = (start:boolean) => {
@@ -309,7 +309,7 @@ useEffect(() => {
       console.log('No words typed or no correct words');
     }
   }
-}, [showResult, correctWordCount, typedWords, typedCharactersCount, errorIndexes, selectedTime]);
+}, [showResult]);
 
 const startTimer = useCallback(() => {
   if (timerInterval) clearInterval(timerInterval);
@@ -327,14 +327,14 @@ const startTimer = useCallback(() => {
 }, [handleEndTest, timerInterval]);
  
 
-useEffect(() => {
-  if(openBattleDialog){
-    clearInterval(timerInterval!);
-  }
-  else if(!openBattleDialog && started){
-    startTimer();
-  }
-}, [openBattleDialog, startTimer, started, timerInterval]);
+// useEffect(() => {
+//   if(openBattleDialog){
+//     clearInterval(timerInterval!);
+//   }
+//   else if(!openBattleDialog && started){
+//     startTimer();
+//   }
+// }, [openBattleDialog, started]);
 
  
   
