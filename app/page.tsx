@@ -7,6 +7,7 @@ import VisualKeyboard from '@/components/VisualKeyboard';
 import { useCallback, useEffect, useState } from 'react';
 import { FaRedoAlt } from 'react-icons/fa';
 import { RiArrowRightSLine } from "react-icons/ri";
+import supabase from './supabase';
 
 export type textObject = {
   chars: string[]; 
@@ -18,65 +19,114 @@ export type ResultType = {
 }
 
 export default function Home() {
-  const [finalText] = useState<string[][]>(
-    [
-        ['H', 'e', 'l', 'l', 'o'],
-        [' '],
-        ['W', 'o', 'r', 'l', 'd'],
-        [' '],
-        ['T', 'y', 'p', 'e'],
-        [' '],
-        ['F', 'a', 's', 't'],
-        [' '],
-        ['C', 'o', 'd', 'e'],
-        [' '],
-        ['R', 'e', 'a', 'c', 't'],
-        [' '],
-        ['B', 'a', 't', 't', 'l', 'e'],
-        [' '],
-        ['J', 'a', 'v', 'a', 'S', 'c', 'r', 'i', 'p', 't'],
-        [' '],
-        ['C', 'h', 'a', 'l', 'l', 'e', 'n', 'g', 'e'],
-        [' '],
-        ['D', 'e', 'b', 'u', 'g'],
-        [' '],
-        ['L', 'e', 'a', 'r', 'n'],
-        [' '],
-        ['W', 'i', 'n'],
-        [' '],
-        ['S', 'm', 'a', 'r', 't'],
-        [' '],
-        ['Q', 'u', 'i', 'c', 'k'],
-        [' '],
-        ['S', 'o', 'l', 'v', 'e'],
-        [' '],
-        ['E', 'x', 'p', 'l', 'o', 'r', 'e'],
-        [' '],
-        ['B', 'u', 'i', 'l', 'd'],
-        [' '],
-        ['I', 'n', 'v', 'e', 'n', 't'],
-        [' '],
-        ['I', 'n', 'i', 't', 'i', 'a', 't', 'e'],
-        [' '],
-        ['T', 'e', 's', 't'],
-        [' '],
-        ['I', 'm', 'p', 'r', 'o', 'v', 'e'],
-        [' '],
-        ['F', 'l', 'o', 'w'],
-        [' '],
-        ['D', 'e', 'v', 'e', 'l', 'o', 'p'],
-        [' '],
-        ['S', 'u', 'c', 'c', 'e', 's', 's'],
-        [' '],
-        ['P', 'r', 'o', 'g', 'r', 'e', 's', 's'],
-        [' '],
-        ['E', 'x', 'p', 'e', 'r', 't'],
-        [' '],
-        ['V', 'i', 'c', 't', 'o', 'r', 'y'],
-        [' '],
-        ['C', 'o', 'n', 'q', 'u', 'e', 'r'],
-      ]
-    )
+  const [finalText, setFinalText] = useState<string[][]>([
+    ["H", "e", "l", "l", "o"],
+    [" "],
+    ["w", "o", "r", "l", "d"],
+    [" "],
+    ["t", "h", "i", "s"],
+    [" "],
+    ["i", "s"],
+    [" "],
+    ["a"],
+    [" "],
+    ["t", "e", "s", "t"],
+    [" "],
+    ["o", "f"],
+    [" "],
+    ["t", "e", "x", "t"],
+    [" "],
+    ["o", "b", "j", "e", "c", "t", "s"],
+    [" "],
+    ["f", "o", "r"],
+    [" "],
+    ["j", "a", "v", "a"],
+    [" "],
+    ["e", "x", "a", "m", "p", "l", "e"],
+    [" "],
+    ["t", "e", "s", "t", "i", "n", "g"],
+    [" "],
+    ["c", "h", "a", "r", "a", "c", "t", "e", "r", "s"],
+    [" "],
+    ["a", "n", "d"],
+    [" "],
+    ["s", "t", "r", "u", "c", "t", "u", "r", "e"],
+    [" "],
+    ["a", "r", "r", "a", "y"],
+    [" "],
+    ["o", "f"],
+    [" "],
+    ["c", "h", "a", "r", "a", "c", "t", "e", "r", "s"],
+    [" "],
+    ["i", "s"],
+    [" "],
+    ["n", "e", "c", "e", "s", "s", "a", "r", "y"],
+    [" "],
+    ["f", "o", "r"],
+    [" "],
+    ["b", "u", "i", "l", "d", "i", "n", "g"],
+    [" "],
+    ["d", "a", "t", "a"],
+    [" "],
+    ["s", "t", "r", "u", "c", "t", "u", "r", "e", "s"],
+    [" "],
+    ["i", "n"],
+    [" "],
+    ["a", "n", "y"],
+    [" "],
+    ["j", "a", "v", "a"],
+    [" "],
+    ["a", "p", "p", "l", "i", "c", "a", "t", "i", "o", "n"],
+    [" "],
+    ["t", "h", "a", "t"],
+    [" "],
+    ["n", "e", "e", "d", "s"],
+    [" "],
+    ["t", "o"],
+    [" "],
+    ["m", "a", "n", "i", "p", "u", "l", "a", "t", "e"],
+    [" "],
+    ["t", "e", "x", "t"],
+    [" "],
+    ["f", "o", "r"],
+    [" "],
+    ["v", "a", "r", "i", "o", "u", "s"],
+    [" "],
+    ["f", "u", "n", "c", "t", "i", "o", "n", "a", "l", "i", "t", "i", "e", "s"],
+    [" "],
+    ["i", "n"],
+    [" "],
+    ["j", "a", "v", "a"],
+    [" "],
+    ["p", "r", "o", "g", "r", "a", "m", "m", "i", "n", "g"],
+    [" "],
+    ["t", "o", "d", "a", "y"],
+    [" "],
+    ["a", "n", "d"],
+    [" "],
+    ["c", "r", "e", "a", "t", "e"],
+    [" "],
+    ["n", "e", "w"],
+    [" "],
+    ["o", "p", "p", "o", "r", "t", "u", "n", "i", "t", "i", "e", "s"],
+    [" "],
+    ["f", "o", "r"],
+    [" "],
+    ["f", "u", "t", "u", "r", "e"],
+    [" "],
+    ["d", "e", "v", "e", "l", "o", "p", "m", "e", "n", "t"],
+    ["J", "a", "v", "a"], [""], ["i", "s"], [""], ["a"], [""], ["v", "e", "r", "s", "a", "t", "i", "l", "e"], [""],
+    ["p", "r", "o", "g", "r", "a", "m", "m", "i", "n", "g"], [""], ["l", "a", "n", "g", "u", "a", "g", "e"], [""],
+    ["t", "h", "a", "t"], [""], ["i", "s"], [""], ["e", "a", "s", "y"], [""], ["t", "o"], [""],
+    ["l", "e", "a", "r", "n"], [""], ["a", "n", "d"], [""], ["u", "s", "e"], [""], ["f", "o", "r"], [""],
+    ["d", "e", "v", "e", "l", "o", "p", "i", "n", "g"], [""], ["m", "o", "b", "i", "l", "e"], [""], ["a", "n", "d"], [""],
+    ["w", "e", "b"], [""], ["a", "p", "p", "s"], [""], ["o", "f"], [""], ["a", "n", "y"], [""], ["k", "i", "n", "d"], [""],
+    ["T", "h", "e"], [""], ["s", "y", "n", "t", "a", "x"], [""], ["i", "s"], [""], ["s", "i", "m", "p", "l", "e"], [""],
+    ["a", "n", "d"], [""], ["c", "l", "e", "a", "r"], [""], ["w", "h", "i", "l", "e"], [""], ["s", "u", "p", "p", "o", "r", "t", "s"], [""],
+    ["o", "o", "l", "s"], [""], ["l", "i", "k", "e"], [""], ["E", "c", "l", "i", "p", "s", "e"], [""], ["o", "r"], [""],
+    ["I", "N", "T", "E", "L", "L", "I", "J"], [""], ["m", "a", "k", "e", "s"], [""], ["d", "e", "v", "e", "l", "o", "p", "m", "e", "n", "t"], [""],
+    ["e", "a", "s", "y"], [""], ["a", "n", "d"], [""], ["e", "f", "f", "i", "c", "i", "e", "n", "t"]
+  ])
   const [started, setStarted] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -160,11 +210,69 @@ export default function Home() {
   //   }, []);
 
 
+  interface TextData {
+    text: string[][];
+}
+
+const getTextData = async (): Promise<void> => {
+    const { data, error }: { data: { text: TextData[] } | null; error: any } = await supabase
+        .from('typetext')
+        .select('text')
+        .eq('id', 1)
+        .single();
+
+    if (error) {
+        console.error('Error fetching data:', error);
+        return;
+    }
+
+    if (data) {
+        const array: TextData[] = data.text; 
+
+        if (Array.isArray(array) && array.length > 0) {
+            const getRandomElement = (arr: TextData[]): TextData => {
+                const randomIndex = Math.floor(Math.random() * arr.length);
+                return arr[randomIndex];
+            };
+
+            const randomElement = getRandomElement(array);
+            const randomElement2 = getRandomElement(array);
+            const randomElement3 = getRandomElement(array);
+
+            if (
+                randomElement.text !== finalText &&
+                randomElement2.text !== finalText &&
+                randomElement3.text !== finalText
+            ) {
+                const formatTextArray = (textArray: string[][]): string[][] => {
+                    const newArr: string[][] = [];
+                    textArray.forEach((item, index) => {
+                        newArr.push(item);
+                        if (index < textArray.length - 1) {
+                            newArr.push([" "]);
+                        }
+                    });
+                    return newArr;
+                };
+
+                const finalArr: string[][] = [
+                    ...formatTextArray(randomElement.text),
+                    ...formatTextArray(randomElement2.text),
+                    ...formatTextArray(randomElement3.text),
+                ];
+
+                setFinalText(finalArr);
+            }
+        }
+    }
+};
+
+
 
 
     const handleNextLesson = () => {
-      // fetchData();
-      console.log('next lesson')
+      restart()
+      getTextData();
     };
 
     
@@ -366,6 +474,7 @@ const startTimer = useCallback(() => {
             errorIndexes={errorIndexes} 
             isCorrect={isCorrect}
             upward={upward}
+            setUpward={setUpward}
             battle={false}
           />
         </div>

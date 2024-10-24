@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface TypeContentProps {
   started: boolean; // Indicates if the typing has started
@@ -10,6 +10,7 @@ interface TypeContentProps {
   errorIndexes: number[]; // Array of indexes where errors occurred
   isCorrect: boolean; // Indicates if the current typed character is correct
   upward: number; // Indicates if text is scrolling upward
+  setUpward: React.Dispatch<React.SetStateAction<number>>; // Function to set the upward state
   battle: boolean; // Indicates if it’s a typing battle
 }
 
@@ -23,11 +24,45 @@ const TypeContent: React.FC<TypeContentProps> = ({
   errorIndexes,
   isCorrect,
   upward,
+  setUpward,
   battle,
 }) => {
 
+  const [lineEndIndices, setLineEndIndices] = useState<number[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const elements = Array.from(
+      containerRef.current?.querySelectorAll(".char-span") || []
+    );
+  
+    let lastTop: number | null = null;
+    const newLineEndIndices: number[] = []; // Local array to collect indices
+  
+    elements.forEach((el, index) => {
+      const { offsetTop } = el as HTMLElement;
+  
+      if (lastTop !== null && offsetTop > lastTop) {
+        newLineEndIndices.push(index - 1); // Collect the index
+      }
+  
+      lastTop = offsetTop;
+    });
+  
+    setLineEndIndices(newLineEndIndices); // Update the state only once
+  }, [finalText]);
+  
+  useEffect(() => {
+    lineEndIndices.slice(1).forEach((endIndex, i) => {
+      if (endIndex+1 === currentIndex) {
+        setUpward((prev) => prev + 58);
+      }
+    });
+  }, [currentIndex, lineEndIndices]);
+  
+
   return (
-    <div className="flex-center flex-col">
+    <div  className="flex-center flex-col">
       <div className="relative max-w-[1200px]">
         {!battle && (
           <div className="absolute top-[-3rem] left-[0] right-0 text-slate-200 text-3xl">
@@ -41,6 +76,7 @@ const TypeContent: React.FC<TypeContentProps> = ({
               transform: `translateY(-${upward}px)`,
               transition: "transform 0.3s ease-in-out",
             }}
+            
           >
             {!finalText.length ? (
               <div className="flex justify-center items-center h-[200px]">
@@ -49,8 +85,8 @@ const TypeContent: React.FC<TypeContentProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="flex flex-wrap">
-              {finalText.map((wordArray: string[], mainIndex: number) => {
+              <div className="flex flex-wrap" ref={containerRef}>
+                {finalText.map((wordArray: string[], mainIndex: number) => {
                     return (
                       <div key={mainIndex} className="flex mr-1">
                         {wordArray.map((char: string, charIndex: number) => {
@@ -59,7 +95,7 @@ const TypeContent: React.FC<TypeContentProps> = ({
                             <span 
                               key={`${mainIndex}-${charIndex}`}
                               style={char === ' ' ? { paddingLeft: '4px', paddingRight: '4px' } : {}}
-                              className={`mr-[1px] font-[500] text-[28px] ${
+                              className={`char-span mr-[1px] font-[500] text-[28px] ${
                                 absoluteIndex === currentIndex && !pressed
                                   ? "bg-yellow-500 text-white"
                                   : absoluteIndex < currentIndex
@@ -80,7 +116,6 @@ const TypeContent: React.FC<TypeContentProps> = ({
                       </div>
                     );
                   })}
-
               </div>
             )}
           </div>
