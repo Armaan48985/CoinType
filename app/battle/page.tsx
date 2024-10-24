@@ -21,7 +21,7 @@ const BattlePage = () => {
     battleId: '',
     address: '',
   });
-  const [finalText, setFinalText] = useState<string[][]>([
+  const [finalText] = useState<string[][]>([
     ["H", "e", "l", "l", "o"],
     [" "],
     ["w", "o", "r", "l", "d"],

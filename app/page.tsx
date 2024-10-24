@@ -215,7 +215,7 @@ export default function Home() {
 }
 
 const getTextData = async (): Promise<void> => {
-    const { data, error }: { data: { text: TextData[] } | null; error: any } = await supabase
+    const { data, error } = await supabase
         .from('typetext')
         .select('text')
         .eq('id', 1)

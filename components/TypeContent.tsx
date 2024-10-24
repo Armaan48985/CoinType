@@ -53,7 +53,7 @@ const TypeContent: React.FC<TypeContentProps> = ({
   }, [finalText]);
   
   useEffect(() => {
-    lineEndIndices.slice(1).forEach((endIndex, i) => {
+    lineEndIndices.slice(1).forEach((endIndex) => {
       if (endIndex+1 === currentIndex) {
         setUpward((prev) => prev + 58);
       }
