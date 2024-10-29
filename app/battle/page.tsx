@@ -286,7 +286,7 @@ useEffect(() => {
       console.log('No words typed or no correct words');
     }
   }
-}, [showResult, correctWordCount, typedWords, typedCharactersCount, selectedTime, errorIndexes]);
+}, [showResult]);
 
 useEffect(() => {
   if(battleStarted){
@@ -336,8 +336,7 @@ useEffect(() => {
               setShowTimer(true);
             }
           }
-
-          if(payload.new.player1_result && payload.new.player2_result){
+  
             setBattleDetails((prev) => {
               if (prev) {
                 return {
@@ -348,7 +347,6 @@ useEffect(() => {
               }
               return prev;
             })
-          }
   
           if (payload.new.ready_status) {
             setIsPlayer2Ready(true);

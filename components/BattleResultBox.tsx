@@ -55,35 +55,49 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
 
   useEffect(() => {
     const fetchResult = async () => {
-      const { data } = await supabase.from("battle").select('*').eq("invite_code", params.battleId); 
-      
-      if(data){
-        const a = data[0].player1_result;
-        const b = data[0].player2_result;
-        setNewBattleDetails(data[0]);
-
-        if(a && b) {
+      console.log("Fetching data because I ended second");
+      const { data, error } = await supabase
+        .from("battle")
+        .select("*")
+        .eq("invite_code", params.battleId);
+  
+      if (error) {
+        console.error("Error fetching battle data:", error);
+        return;
+      }
+  
+      if (data && data.length > 0) {
+        const battleData = data[0];
+        setNewBattleDetails(battleData);
+  
+        const { player1_result: a, player2_result: b } = battleData;
+  
+        if (a && b) {
           setPlayer1WPM(a);
           setPlayer2WPM(b);
           determineWinner(Number(a), Number(b));
         }
       }
+    };
+  
+    // If both results are available, use them directly from state.
+    if (
+      battleDetails?.player1_result &&
+      battleDetails?.player2_result
+    ) {
+      console.log("Using data from battleDetails because I ended first");
+      setPlayer1WPM(battleDetails.player1_result);
+      setPlayer2WPM(battleDetails.player2_result);
+      determineWinner(
+        Number(battleDetails.player1_result),
+        Number(battleDetails.player2_result)
+      );
+    } 
+    else if (params.battleId) {
+      fetchResult();
     }
-
-      if(battleDetails?.player1_result&& battleDetails?.player2_result) {
-        console.log('taking from battleDetails becoz i ended first')
-        setPlayer1WPM(battleDetails.player1_result);
-        setPlayer2WPM(battleDetails.player2_result);
-        determineWinner(Number(battleDetails.player1_result), Number(battleDetails.player2_result));
-      }
-
-      else {
-        console.log('fetching data becoz i ended second')
-        fetchResult()
-      }
-
-      
-  }, [battleDetails, params.battleId, determineWinner])
+  }, [params.battleId]);
+  
 
 
   const sendResult = async () => {
@@ -120,6 +134,14 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     }
   };
 
+  useEffect(() => {
+    if(battleDetails?.player1_result && battleDetails?.player2_result) {
+      setPlayer1WPM(battleDetails.player1_result);
+      setPlayer2WPM(battleDetails.player2_result);
+      determineWinner(Number(battleDetails.player1_result), Number(battleDetails.player2_result));
+    }
+  }, [battleDetails])
+
   
 
   useEffect(() => {
@@ -128,27 +150,27 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
 
 
 
-  useEffect(() => {
-    const subscription = supabase
-      .channel('battle')
-      .on('postgres_changes', 
-        { event: 'UPDATE', schema: 'public', table: 'battle' }, 
-        (payload) => {
-          if ((payload.new.player1_result !== payload.old.player1_result) && (payload.new.player2_result !== payload.old.player2_result)) {
-            console.log('causing infinte loop')
-            setPlayer1WPM(payload.new.player1_result);
-            setPlayer2WPM(payload.new.player2_result);
-            determineWinner(payload.new.player1_result, payload.new.player2_result);
-          }
+  // useEffect(() => {
+  //   const subscription = supabase
+  //     .channel('battle')
+  //     .on('postgres_changes', 
+  //       { event: 'UPDATE', schema: 'public', table: 'battle' }, 
+  //       (payload) => {
+  //         if ((payload.new.player1_result !== payload.old.player1_result) && (payload.new.player2_result !== payload.old.player2_result)) {
+  //           console.log('causing infinte loop')
+  //           setPlayer1WPM(payload.new.player1_result);
+  //           setPlayer2WPM(payload.new.player2_result);
+  //           determineWinner(payload.new.player1_result, payload.new.player2_result);
+  //         }
   
-        }
-      )
-      .subscribe();
+  //       }
+  //     )
+  //     .subscribe();
   
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  });
+  //   return () => {
+  //     supabase.removeChannel(subscription);
+  //   };
+  // });
   
 
   const provider = new ethers.JsonRpcProvider(
