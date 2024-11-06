@@ -134,8 +134,8 @@ export default function Home() {
   const [typedText, setTypedText] = useState('');
   const [errorIndexes, setErrorIndexes] = useState<number[]>([]);
   const [pressed, setPressed] = useState(false);
-  const [selectedTime, setSelectedTime] = useState(15);
-  const [remainingTime, setRemainingTime] = useState(15);
+  const [selectedTime, setSelectedTime] = useState(30);
+  const [remainingTime, setRemainingTime] = useState(30);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [keyPressed, setKeyPressed] = useState<string | null>(null);
   const [incorrectCount, setIncorrectCount] = useState(0);
@@ -373,6 +373,7 @@ const getTextData = async (): Promise<void> => {
       setCurrentWordIndex(0)
       setCurrentWord('')
       setTypedWords([])
+      setTypedCharactersCount(0)
     }
   }
 
@@ -406,11 +407,12 @@ const getTextData = async (): Promise<void> => {
   setShowResult(true);
 };
 
+
 useEffect(() => {
   if (showResult) {
     if (correctWordCount > 0 && typedWords.length > 0) {
-      const wpm = (typedCharactersCount / 5) / (selectedTime / 60);
       const correctCharCount = typedCharactersCount - errorIndexes.length;
+      const wpm = (correctCharCount / 5) * (60 / selectedTime);
       const accuracy = Math.round((correctCharCount / typedCharactersCount) * 100);
       setResult({ wpm, accuracy });
     } else {
