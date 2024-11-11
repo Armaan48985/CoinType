@@ -1,8 +1,8 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { RiCloseLine } from "react-icons/ri";
 import { FaArrowLeftLong } from "react-icons/fa6";
-import { Button } from "../ui/button";
-import NetworkButton from "./NetworkButton";
+import { Button } from "./ui/button";
+import NetworkButton from "./self/NetworkButton";
 import { checkInviteCode, player2Join, sendCode } from "@/app/ImportantFunc";
 import { useAccount, useSendTransaction } from "wagmi";
 import { parseEther } from "viem";
@@ -191,6 +191,10 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
         address
       );
       if (data && data?.length > 0) {
+        if(data[0].status == 'completed'){
+          setgeneratedInviteCodeError(true);      
+          return;
+        }
         setgeneratedInviteCodeError(false);
         setBattleDetails(data[0]);
         setStep("joiningDetails");
@@ -408,7 +412,7 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
               </div>
             </div>
             {generatedInviteCodeError && (
-              <div className="text-red-500">Code Invalid</div>
+              <div className="text-red-500">Code Invalid or Expired</div>
             )}
             <div className="text-center flex-center mt-8">
               <Button

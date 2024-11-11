@@ -65,7 +65,7 @@ const TypeContent: React.FC<TypeContentProps> = ({
     <div  className="flex-center flex-col">
       <div className="relative max-w-[1200px]">
         {!battle && (
-          <div className="absolute top-[-3rem] left-[0] right-0 text-slate-200 text-3xl">
+          <div className="absolute top-[-3rem] left-[0] right-0 text-white text-3xl">
             {started ? remainingTime : selectedTime}
           </div>
         )}
@@ -107,7 +107,7 @@ const TypeContent: React.FC<TypeContentProps> = ({
                                 absoluteIndex === currentIndex && !isCorrect
                                   ? "bg-red-500"
                                   : "bg-transparent"
-                              } py-1 duration-75 px-[2px] rounded`}
+                              } py-1 px-[2px] rounded`}
                             >
                               {char}
                             </span>

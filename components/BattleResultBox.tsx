@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ParamType } from "@/app/battle/page";
-import { BattleDataType } from "./self/BattleDialog";
+import { BattleDataType } from "./BattleDialog";
 import supabase from "@/app/supabase";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
@@ -18,15 +18,14 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   params,
   battleDetails,
 }) => {
-  const {wpm , accuracy} = result;
+  const { wpm, accuracy } = result;
   const [player1WPM, setPlayer1WPM] = useState<string | null>(null);
   const [player2WPM, setPlayer2WPM] = useState<string | null>(null);
   const [winner, setWinner] = useState<string | null>(null);
   const [prizeSent, setPrizeSent] = useState(false);
   const isPlayer1 = params.address == battleDetails?.player1;
-  const [isLoading, setIsLoading] = useState(false); 
+  const [isLoading, setIsLoading] = useState(false);
   const [newBattleDetails, setNewBattleDetails] = useState<BattleDataType>();
-
 
   const handleClaimPrize = async () => {
     setIsLoading(true); // Start loading when the button is clicked
@@ -50,7 +49,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
       winner = battleDetails?.player2;
     }
 
-    if(!newBattleDetails?.winner) updateWinner(winner);
+    if (!newBattleDetails?.winner) updateWinner(winner);
   };
 
   useEffect(() => {
@@ -60,18 +59,18 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
         .from("battle")
         .select("*")
         .eq("invite_code", params.battleId);
-  
+
       if (error) {
         console.error("Error fetching battle data:", error);
         return;
       }
-  
+
       if (data && data.length > 0) {
         const battleData = data[0];
         setNewBattleDetails(battleData);
-  
+
         const { player1_result: a, player2_result: b } = battleData;
-  
+
         if (a && b) {
           setPlayer1WPM(a);
           setPlayer2WPM(b);
@@ -79,12 +78,9 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
         }
       }
     };
-  
+
     // If both results are available, use them directly from state.
-    if (
-      battleDetails?.player1_result &&
-      battleDetails?.player2_result
-    ) {
+    if (battleDetails?.player1_result && battleDetails?.player2_result) {
       console.log("Using data from battleDetails because I ended first");
       setPlayer1WPM(battleDetails.player1_result);
       setPlayer2WPM(battleDetails.player2_result);
@@ -92,13 +88,10 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
         Number(battleDetails.player1_result),
         Number(battleDetails.player2_result)
       );
-    } 
-    else if (params.battleId) {
+    } else if (params.battleId) {
       fetchResult();
     }
   }, [params.battleId]);
-  
-
 
   const sendResult = async () => {
     const isPlayer1 = params.address === battleDetails?.player1;
@@ -114,14 +107,14 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
       .from("battle")
       .update({ [updateColumn]: wpm })
       .eq("invite_code", params.battleId)
-      .eq(isPlayer1 ? "player1" : "player2", params.address)
+      .eq(isPlayer1 ? "player1" : "player2", params.address);
 
     if (error) console.error("Error updating result:", error);
     else {
     }
   };
 
-  const updateWinner =  async(winnerName: string) => {
+  const updateWinner = async (winnerName: string) => {
     try {
       const { error } = await supabase
         .from("battle")
@@ -135,26 +128,25 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   };
 
   useEffect(() => {
-    if(battleDetails?.player1_result && battleDetails?.player2_result) {
+    if (battleDetails?.player1_result && battleDetails?.player2_result) {
       setPlayer1WPM(battleDetails.player1_result);
       setPlayer2WPM(battleDetails.player2_result);
-      determineWinner(Number(battleDetails.player1_result), Number(battleDetails.player2_result));
+      determineWinner(
+        Number(battleDetails.player1_result),
+        Number(battleDetails.player2_result)
+      );
     }
-  }, [battleDetails])
-
-  
+  }, [battleDetails]);
 
   useEffect(() => {
     if (wpm !== null && accuracy !== null) sendResult();
   }, [wpm, accuracy, sendResult]);
 
-
-
   // useEffect(() => {
   //   const subscription = supabase
   //     .channel('battle')
-  //     .on('postgres_changes', 
-  //       { event: 'UPDATE', schema: 'public', table: 'battle' }, 
+  //     .on('postgres_changes',
+  //       { event: 'UPDATE', schema: 'public', table: 'battle' },
   //       (payload) => {
   //         if ((payload.new.player1_result !== payload.old.player1_result) && (payload.new.player2_result !== payload.old.player2_result)) {
   //           console.log('causing infinte loop')
@@ -162,16 +154,15 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   //           setPlayer2WPM(payload.new.player2_result);
   //           determineWinner(payload.new.player1_result, payload.new.player2_result);
   //         }
-  
+
   //       }
   //     )
   //     .subscribe();
-  
+
   //   return () => {
   //     supabase.removeChannel(subscription);
   //   };
   // });
-  
 
   const provider = new ethers.JsonRpcProvider(
     "https://rpc.walletconnect.com/v1/?chainId=eip155:11155111&projectId=735705f1a66fe187ed955c8f9e16164d"
