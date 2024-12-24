@@ -4,7 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import React, { useEffect, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Chart } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Chart, ChartDataset } from 'chart.js';
 import supabase from '../supabase'
 
 // Register Chart.js components
@@ -19,7 +19,7 @@ interface BattleHistoryItem {
     wpm: string;
   }
 
-const page = () => {
+const Page = () => {
     const {address : currentUserAddress} = useAccount()
     const [historyData, setHistoryData] = useState<BattleHistoryItem[]>([]);
     const [currentSpeed, setCurrentSpeed] = useState<string>('');
@@ -157,19 +157,23 @@ const page = () => {
     
       const centerTextPlugin = {
         id: 'centerText',
-        beforeDraw: (chart: { ctx?: any; data?: any; width?: any; height?: any }) => {
-          const { width } = chart;
-          const { height } = chart;
-          const ctx = chart.ctx;
+        beforeDraw: (chart: Chart) => {
+          const { width, height, ctx, data } = chart;
+      
+          // Ensure data exists and datasets have the correct structure
+          const total = (data.datasets[0] as ChartDataset).data
+          .filter((value) => typeof value === 'number') // Ensure we're only working with numbers
+          .reduce((sum: number, value: number) => sum + value, 0);
+        
+      
           ctx.save();
-    
-          const total = chart.data.datasets[0].data.reduce((sum: any, value: any) => sum + value, 0);
-    
+      
           ctx.font = 'bold 24px "JetBrains Mono", monospace';
           ctx.fillStyle = '#fff';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillText(`${total}`, width / 2, height / 2);
+      
           ctx.restore();
         },
       };
@@ -213,7 +217,7 @@ const page = () => {
           setHistoryData(battleHistory);
           return battleHistory;
         } catch (error) {
-          console.error('Error fetching battle history:');
+          console.error('Error fetching battle history:', error);
           return [];
         }
       };
@@ -353,4 +357,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
