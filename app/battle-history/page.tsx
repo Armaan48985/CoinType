@@ -45,34 +45,34 @@ const Page = () => {
       const options = {
         plugins: {
           legend: {
-            display: false, 
+        display: false, 
           },
           tooltip: {
-            callbacks: {
-              label: (tooltipItem:any) => {
-                const label = tooltipItem.label; 
-                const value = tooltipItem.raw;  
-                
-                if (label === 'Won') {
-                  return `${label}: ${won} battles`;
-                } else if (label === 'Lost') {
-                  return `${label}: ${lost} battles`;
-                }
-                return `${label}: ${value}`;
-              },
-            },
-            backgroundColor: '#1f2937', 
-            titleColor: '#ffffff',   
-            bodyColor: '#ffffff',   
-            borderColor: '#6b7280',  
-            borderWidth: 1,      
-            padding: 8,              
-            cornerRadius: 4,  
+        callbacks: {
+          label: (tooltipItem: { label: string; raw: number }) => {
+            const label = tooltipItem.label; 
+            const value = tooltipItem.raw;  
+            
+            if (label === 'Won') {
+          return `${label}: ${won} battles`;
+            } else if (label === 'Lost') {
+          return `${label}: ${lost} battles`;
+            }
+            return `${label}: ${value}`;
+          },
+        },
+        backgroundColor: '#1f2937', 
+        titleColor: '#ffffff',   
+        bodyColor: '#ffffff',   
+        borderColor: '#6b7280',  
+        borderWidth: 1,      
+        padding: 8,              
+        cornerRadius: 4,  
           },
         },
         elements: {
           arc: {
-            borderWidth: 0,
+        borderWidth: 0,
           },
         },
         cutout: '62%',
