@@ -109,7 +109,7 @@ const Page = () => {
                 tooltip: {
                   enabled: true,
                   callbacks: {
-                    label: function (tooltipItem: TooltipItem<'doughnut'>) {
+                    label: function () {
                       return 'Average Speed'; // You can customize this logic further if needed
                     },
                   },
