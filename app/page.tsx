@@ -8,6 +8,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { FaRedoAlt } from 'react-icons/fa';
 import { RiArrowRightSLine } from "react-icons/ri";
 import supabase from './supabase';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export type textObject = {
   chars: string[]; 
@@ -214,60 +216,58 @@ export default function Home() {
     text: string[][];
 }
 
-const getTextData = async (): Promise<void> => {
-    const { data, error } = await supabase
-        .from('typetext')
-        .select('text')
-        .eq('id', 1)
-        .single();
+    const getTextData = async (): Promise<void> => {
+        const { data, error } = await supabase
+            .from('typetext')
+            .select('text')
+            .eq('id', 1)
+            .single();
 
-    if (error) {
-        console.error('Error fetching data:', error);
-        return;
-    }
+        if (error) {
+            console.error('Error fetching data:', error);
+            return;
+        }
 
-    if (data) {
-        const array: TextData[] = data.text; 
+        if (data) {
+            const array: TextData[] = data.text; 
 
-        if (Array.isArray(array) && array.length > 0) {
-            const getRandomElement = (arr: TextData[]): TextData => {
-                const randomIndex = Math.floor(Math.random() * arr.length);
-                return arr[randomIndex];
-            };
-
-            const randomElement = getRandomElement(array);
-            const randomElement2 = getRandomElement(array);
-            const randomElement3 = getRandomElement(array);
-
-            if (
-                randomElement.text !== finalText &&
-                randomElement2.text !== finalText &&
-                randomElement3.text !== finalText
-            ) {
-                const formatTextArray = (textArray: string[][]): string[][] => {
-                    const newArr: string[][] = [];
-                    textArray.forEach((item, index) => {
-                        newArr.push(item);
-                        if (index < textArray.length - 1) {
-                            newArr.push([" "]);
-                        }
-                    });
-                    return newArr;
+            if (Array.isArray(array) && array.length > 0) {
+                const getRandomElement = (arr: TextData[]): TextData => {
+                    const randomIndex = Math.floor(Math.random() * arr.length);
+                    return arr[randomIndex];
                 };
 
-                const finalArr: string[][] = [
-                    ...formatTextArray(randomElement.text),
-                    ...formatTextArray(randomElement2.text),
-                    ...formatTextArray(randomElement3.text),
-                ];
+                const randomElement = getRandomElement(array);
+                const randomElement2 = getRandomElement(array);
+                const randomElement3 = getRandomElement(array);
 
-                setFinalText(finalArr);
+                if (
+                    randomElement.text !== finalText &&
+                    randomElement2.text !== finalText &&
+                    randomElement3.text !== finalText
+                ) {
+                    const formatTextArray = (textArray: string[][]): string[][] => {
+                        const newArr: string[][] = [];
+                        textArray.forEach((item, index) => {
+                            newArr.push(item);
+                            if (index < textArray.length - 1) {
+                                newArr.push([" "]);
+                            }
+                        });
+                        return newArr;
+                    };
+
+                    const finalArr: string[][] = [
+                        ...formatTextArray(randomElement.text),
+                        ...formatTextArray(randomElement2.text),
+                        ...formatTextArray(randomElement3.text),
+                    ];
+
+                    setFinalText(finalArr);
+                }
             }
         }
-    }
-};
-
-
+    };
 
 
     const handleNextLesson = () => {
@@ -276,88 +276,88 @@ const getTextData = async (): Promise<void> => {
     };
 
     
-  const handleWordInput = (inputWord: string, currentWordIndex: number) => {
-    setTypedWords((prev) => [...prev, inputWord]);
+    const handleWordInput = (inputWord: string, currentWordIndex: number) => {
+      setTypedWords((prev) => [...prev, inputWord]);
 
-    if (inputWord === flattenWordText[currentWordIndex]) {
-      setCorrectWordCount((prevCount) => prevCount + 1);
-    }
-  };
-
-  function handleKeyPress(event: KeyboardEvent) {
-    if(openBattleDialog) return;
-    if (remainingTime === 0) return;
-    const pressedKey = event.key;
-    setKeyPressed(pressedKey);
-
-    setTimeout(() => setKeyPressed(null), 100);
-
-    if (pressedKey === 'Backspace') {
-      event.preventDefault();
-      setCurrentWord((prev) => prev.slice(0, -1));
-      if (currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1);
-        setTypedText(typedText.slice(0, -1));
-        setErrorIndexes(errorIndexes.filter(index => index !== currentIndex - 1));
-        setTypedCharactersCount((prevCount) => prevCount - 1);
+      if (inputWord === flattenWordText[currentWordIndex]) {
+        setCorrectWordCount((prevCount) => prevCount + 1);
       }
+    };
 
-      return;
-    } 
-    if (pressedKey.length > 1 && pressedKey !== ' ') return;
+    function handleKeyPress(event: KeyboardEvent) {
+      if(openBattleDialog) return;
+      if (remainingTime === 0) return;
+      const pressedKey = event.key;
+      setKeyPressed(pressedKey);
+
+      setTimeout(() => setKeyPressed(null), 100);
+
+      if (pressedKey === 'Backspace') {
+        event.preventDefault();
+        setCurrentWord((prev) => prev.slice(0, -1));
+        if (currentIndex > 0) {
+          setCurrentIndex(currentIndex - 1);
+          setTypedText(typedText.slice(0, -1));
+          setErrorIndexes(errorIndexes.filter(index => index !== currentIndex - 1));
+          setTypedCharactersCount((prevCount) => prevCount - 1);
+        }
+
+        return;
+      } 
+      if (pressedKey.length > 1 && pressedKey !== ' ') return;
+      
+      const expectedChar = charArray[currentIndex];
+      const inputChar = pressedKey;
     
-    const expectedChar = charArray[currentIndex];
-    const inputChar = pressedKey;
-  
 
-    if(!openBattleDialog){
-      if (pressedKey === ' ') {
-        handleWordInput(currentWord, currentWordIndex);
-        setTypedText((prev) => prev + currentWord + ' ');
-        setCurrentWord('');
-        setCurrentWordIndex((prevIndex) => prevIndex + 1); 
-      } else{
-        setCurrentWord((prev) => prev + pressedKey);
+      if(!openBattleDialog){
+        if (pressedKey === ' ') {
+          handleWordInput(currentWord, currentWordIndex);
+          setTypedText((prev) => prev + currentWord + ' ');
+          setCurrentWord('');
+          setCurrentWordIndex((prevIndex) => prevIndex + 1); 
+        } else{
+          setCurrentWord((prev) => prev + pressedKey);
+        }
+
+        if (pressedKey === ' ') {
+          if (expectedChar === ' ') {
+              setCurrentIndex(currentIndex + 1);
+              setIsCorrect(true);
+
+            } else {
+              setErrorIndexes([...errorIndexes, currentIndex]);
+              setIsCorrect(false);
+              setCurrentIndex(currentIndex + 1); 
+            }
+            setTypedCharactersCount((prevCount) => prevCount + 1);
+            event.preventDefault();
+            setPressed(false);
+            return;
       }
 
-      if (pressedKey === ' ') {
-        if (expectedChar === ' ') {
-            setCurrentIndex(currentIndex + 1);
-            setIsCorrect(true);
-
-          } else {
-            setErrorIndexes([...errorIndexes, currentIndex]);
-            setIsCorrect(false);
-            setCurrentIndex(currentIndex + 1); 
-          }
-          setTypedCharactersCount((prevCount) => prevCount + 1);
-          event.preventDefault();
-          setPressed(false);
-          return;
-    }
-
-    if(!started) {
-      setStarted(true);
-      handleStart(false)
-    }
-
-    setPressed(true);
-
-    if (expectedChar === inputChar) {
-        setTypedText(typedText + pressedKey);
-        setCurrentIndex(currentIndex + 1);
-        setIsCorrect(true);
-    } else {
-        setErrorIndexes([...errorIndexes, currentIndex]);
-        setIsCorrect(false);
-        setCurrentIndex(currentIndex + 1); 
-        setIncorrectCount(incorrectCount + 1);
+      if(!started) {
+        setStarted(true);
+        handleStart(false)
       }
-      setTypedCharactersCount((prevCount) => prevCount + 1);
 
-    }
-    setPressed(false);
-};
+      setPressed(true);
+
+      if (expectedChar === inputChar) {
+          setTypedText(typedText + pressedKey);
+          setCurrentIndex(currentIndex + 1);
+          setIsCorrect(true);
+      } else {
+          setErrorIndexes([...errorIndexes, currentIndex]);
+          setIsCorrect(false);
+          setCurrentIndex(currentIndex + 1); 
+          setIncorrectCount(incorrectCount + 1);
+        }
+        setTypedCharactersCount((prevCount) => prevCount + 1);
+
+      }
+      setPressed(false);
+    };
 
   const restart = () => {
     if(started){
@@ -509,6 +509,23 @@ const startTimer = useCallback(() => {
             {showResult && (
               <ResultBox setShowResult={setShowResult} result={result} restart={restart}/>
             )}
+
+            <div className='flex justify-end mt-8 mr-6'>
+                  <TooltipDemo 
+                      hoverText={
+                        <Link href='/battle-history' className=''>
+                          <div className=' p-4 bg-[#ffb700] rounded-full cursor-pointer hover:scale-[1.08] duration-700'>
+                            <span> <Image src='/battle.png' width={30} height={30} alt='keyboard' className=''/></span>
+                          </div>
+                        </Link>
+                      } 
+                      tooltipText='Battle History'
+                      hoverClass=''
+                      tooltipClass='mb-4'
+                    />
+            </div>
+
+          
 
     </div>
   );

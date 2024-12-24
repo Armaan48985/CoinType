@@ -14,13 +14,12 @@ import Image from "next/image";
 
 
 interface HandleInsertsPayload {
-  new: BattleData; // The new battle data structure
+  new: BattleData; 
 }
 
 interface BattleData {
-  player1: string; // Assuming player1 is a string (address or identifier)
-  player2: string; // Assuming player2 is a string (address or identifier)
-  // Add any additional properties that might exist in battleData
+  player1: string;
+  player2: string;
 }
 export type BattleDataType = {
   invite_code: string;
@@ -44,12 +43,10 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
   const [ethAmount, setEthAmount] = useState("");
   const [time, setTime] = useState("");
   const [generatedInviteCode, setgeneratedInviteCode] = useState("");
-  const [enteredInviteCode, setEnteredInviteCode] =
-    useState("");
+  const [enteredInviteCode, setEnteredInviteCode] = useState("");
   const [battleDetails, setBattleDetails] = useState<BattleDataType>();
   const [invalid, setInvalid] = useState(false);
-  const [generatedInviteCodeError, setgeneratedInviteCodeError] =
-    useState(false);
+  const [generatedInviteCodeError, setgeneratedInviteCodeError] = useState(false);
   const {
     sendTransaction : startingTransaction,
     status : startingStatus,
@@ -62,7 +59,6 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
   const [isStartBattleSuccess] = useState(false);
   const router = useRouter();
   const [ethError, setEthError] = useState(false);
-
 
   const startBattle = async () => {
     if (!ethAmount || !time) {
@@ -96,7 +92,6 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
   };
 
   const addressRef = useRef(address);
-
 
   useEffect(() => {
     addressRef.current = address;
@@ -209,7 +204,6 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
 
 
   const generategeneratedInviteCode = () => {
-    console.log("Generating invite code...");
     return Math.random().toString(36).substring(2, 10).toUpperCase();
   };
 
@@ -331,8 +325,6 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
                         )}
                         Eth Amount:
                       </label>
-                
-
                       <input
                         type="text"
                         placeholder="Enter ETH amount"
@@ -340,8 +332,7 @@ const BattleDialog: React.FC<BattleDialogProps> = ({ setOpenBattleDialog }) => {
                         value={ethAmount}
                         onChange={(e) => setEthAmount(e.target.value)}
                       />
-
-                            
+     
                       {ethError && (
                         <p className="text-red-500 text-[10px]">
                           *ETH amount cannot be <br/> lower than 10^(-6)

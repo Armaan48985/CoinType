@@ -206,9 +206,7 @@ const BattlePage = () => {
   const [pressed, setPressed] = useState(false);
   const [selectedTime, setSelectedTime] = useState(0);
   const [remainingTime, setRemainingTime] = useState(0);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(
-    null
-  );
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [keyPressed, setKeyPressed] = useState<string | null>(null);
   const [incorrectCount, setIncorrectCount] = useState(0);
   const [showResult, setShowResult] = useState(false);
@@ -446,7 +444,7 @@ const BattlePage = () => {
       if (isPlayer2Ready) {
         await setStatus("started", params.battleId);
       } else {
-        setMessage("player2 is not ready yet");
+        setMessage("player2 is not ready yet :(");
       }
     } else {
       if (params) await markReady(params.battleId);
@@ -454,8 +452,8 @@ const BattlePage = () => {
   };
 
   return (
-    <div className="text-white">
-      <div className="w-full flex-between p-6 px-16 mt-8">
+    <div className="text-white overflow-hidden">
+      <div className="w-full flex-between px-10 mt-8 ml-9 py-10">
         <div>
           {!battleStarted && (
             <Button
@@ -475,23 +473,28 @@ const BattlePage = () => {
           )}
         </div>
 
-        <Image src="/battle.png" width={40} height={40} alt="logo" />
-
+         <Image
+              src="/battle.png" 
+              width={50} 
+              height={50} 
+              alt="logo" 
+              />
+            
         <div>
           <div className="flex-center gap-2">
             <TooltipDemo
               hoverText={
-                <div className="bg-gray-900 flex-center gap-3 font-mono px-6 py-3 rounded-md text-white text-sm">
+                <div className="bg-[#073b4c] mr-10 font-semibold flex-center gap-3 font-mono px-4 py-3 rounded-md text-gray-300 hover:text-white text-sm">
                   <span>
                     <Image
                         src="/piggy-bank2.png"
                         alt="piggybank"
-                        width={30}
-                        height={30}
+                        width={25}
+                        height={25}
                         className=""
                       />
                     </span>
-                    <span>
+                    <span className="mt-1">
                       {battleDetails &&
                       (Number(battleDetails.eth_amount) * 2).toLocaleString("en-US", {
                         minimumFractionDigits: 0,
@@ -549,7 +552,7 @@ const BattlePage = () => {
             {battleDetails ? (
               <div className="">
                 {isPlayer1 && !isPlayer2Ready && message && (
-                  <p className="text-sm w-full text-red-500 absolute bottom-[12.5rem] right-[-5px]">
+                  <p className="text-sm w-full text-[#f45050] absolute bottom-[12.5rem] right-[-5px]">
                     {message}
                   </p>
                 )}
@@ -569,6 +572,7 @@ const BattlePage = () => {
                     address={
                       isPlayer1 ? battleDetails.player2 : battleDetails.player1
                     }
+                    showActive={true}
                   />
                   <div className="text-center">
                     <p>Player {isPlayer1 ? "2" : "1"}</p>

@@ -5,9 +5,10 @@ import Image from 'next/image';
 
 interface PlayerDetailsProps {
     address: `0x${string}`;
+    showActive: boolean;
   }
   
-  const PlayerDetails: React.FC<PlayerDetailsProps> = ({ address }) => {
+  const PlayerDetails: React.FC<PlayerDetailsProps> = ({ address, showActive }) => {
     const { data: ensName } = useEnsName({ address });
     const { data: ensAvatar } = useEnsAvatar({ name: ensName || undefined });
   
@@ -24,7 +25,7 @@ interface PlayerDetailsProps {
           width={10}
           height={10}
         />
-        <span className="absolute bottom-1 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>
+        {showActive && <span className="absolute bottom-1 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></span>}
       </div>
   );
 };
