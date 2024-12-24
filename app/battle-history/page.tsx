@@ -4,7 +4,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import React, { useEffect, useRef, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { Doughnut } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Chart, ChartDataset } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Chart, ChartDataset, TooltipItem, ChartOptions, ChartData } from 'chart.js';
 import supabase from '../supabase'
 
 // Register Chart.js components
@@ -49,9 +49,9 @@ const Page = () => {
           },
           tooltip: {
         callbacks: {
-          label: (tooltipItem: { label: string; raw: number }) => {
-            const label = tooltipItem.label; 
-            const value = tooltipItem.raw;  
+          label: (tooltipItem: TooltipItem<'doughnut'>) => {
+            const label = tooltipItem.label || ''; 
+            const value = tooltipItem.raw as number;  
             
             if (label === 'Won') {
           return `${label}: ${won} battles`;
@@ -79,61 +79,62 @@ const Page = () => {
       };
 
       const chartRef = useRef<HTMLCanvasElement>(null);
-      const chartInstanceRef = useRef<Chart | null>(null); 
+      const chartInstanceRef = useRef<Chart | null>(null);
+      
       useEffect(() => {
         if (chartRef.current) {
           const ctx = chartRef.current.getContext('2d');
-    
+      
           if (chartInstanceRef.current) {
             chartInstanceRef.current.destroy();
           }
-    
-          chartInstanceRef.current = new Chart(ctx, {
+      
+          chartInstanceRef.current = new Chart(ctx!, {
             type: 'doughnut',
             data: {
               datasets: [
                 {
-                  data: [currentSpeed, 300 - parseInt(currentSpeed)], 
-                  backgroundColor: ['#E8EE3B', '#FFFFFF'], 
+                  data: [currentSpeed, 300 - parseInt(currentSpeed)], // Ensure these are numbers
+                  backgroundColor: ['#E8EE3B', '#FFFFFF'],
                   borderWidth: 0,
                 },
               ],
-            },
+            } as ChartData<'doughnut'>, // Explicitly type the data as a 'doughnut' chart data type
             options: {
               responsive: true,
-              circumference: 180, 
-              rotation: -90, 
-              cutout: '70%', 
+              circumference: 180,
+              rotation: -90,
+              cutout: '70%',
               plugins: {
                 tooltip: {
-                    enabled: true, 
-                    callbacks: {
-                      label: function () {
-                        return 'Average Speed'; 
-                      },
+                  enabled: true,
+                  callbacks: {
+                    label: function (tooltipItem: TooltipItem<'doughnut'>) {
+                      return 'Average Speed'; // You can customize this logic further if needed
                     },
-                    backgroundColor: '#1f2937',
-                    titleColor: '#ffffff', 
-                    bodyColor: '#ffffff', 
-                    borderColor: '#6b7280', 
-                    borderWidth: 1,
-                    padding: 4,
-                    cornerRadius: 4,
-                    caretSize: 0, 
-                    displayColors: false, 
                   },
+                  backgroundColor: '#1f2937',
+                  titleColor: '#ffffff',
+                  bodyColor: '#ffffff',
+                  borderColor: '#6b7280',
+                  borderWidth: 1,
+                  padding: 4,
+                  cornerRadius: 4,
+                  caretSize: 0,
+                  displayColors: false,
+                },
                 legend: {
-                  display: false, 
+                  display: false,
                 },
               },
               animation: {
                 duration: 1500,
                 easing: 'easeOutBounce',
               },
-            },
+            } as ChartOptions<'doughnut'>, // Explicitly type the options as a 'doughnut' chart options type
           });
         }
-    
+      
         return () => {
           if (chartInstanceRef.current) {
             chartInstanceRef.current.destroy();
