@@ -1,8 +1,11 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 import BattleDialog from "../BattleDialog";
+import supabase from "@/app/supabase";
+import { useAccount} from "wagmi";
+import { ethers } from "ethers";import { toast } from "react-toastify";
 
 const WalletConnect = ({
   openBattleDialog,
@@ -12,6 +15,97 @@ const WalletConnect = ({
   setOpenBattleDialog: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [openDialog, setOpenDialog] = useState(false);
+  const { address } = useAccount();
+  const notify = () =>
+    toast("Sent 0.01 SepoliaEth to your account!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark", // Options: "light", "dark", "colored"
+    });
+
+  const giveEthtoUser = async () => {
+    if (!address) {
+      console.error("Recipient address is required.");
+      return;
+    }
+    console.log('heolo')
+     const provider = new ethers.JsonRpcProvider(
+        "https://rpc.walletconnect.com/v1/?chainId=eip155:11155111&projectId=735705f1a66fe187ed955c8f9e16164d"
+      );
+      const wallet = new ethers.Wallet(
+        process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY || '',
+        provider
+      );
+      const tx = await wallet.sendTransaction({
+          to: address,
+          value: ethers.parseEther('0.01'),
+        });
+
+        console.log('lskjdf')
+
+        await tx.wait();
+        // alert('Sent 0.01 ETH to your account')
+        notify()
+  };
+
+  useEffect(() => {
+    requestEth();
+  }, [address])
+
+  const requestEth = async () => {
+    try {
+        const response = await fetch("https://api64.ipify.org?format=json");
+        const { ip } = await response.json();
+
+        const { data: existingRequest, error: fetchError } = await supabase
+            .from("ip_requests")
+            .select("*")
+            .eq("ip_address", ip.trim())
+            .single();
+
+        const now = new Date();
+
+        if (fetchError && fetchError.code !== "PGRST116") {
+            throw new Error("Error fetching IP data.");
+        }
+
+        if (existingRequest) {
+            const timeDiff = now.getTime() - new Date(existingRequest.last_request).getTime();
+
+            if (timeDiff <= 24 * 60 * 60 * 1000) {
+                console.log("Updating existing record.");
+                const { error: updateError } = await supabase
+                    .from("ip_requests")
+                    .update({ last_request: now })
+                    .eq("ip_address", ip);
+
+                if (updateError) {
+                    throw new Error("Error updating request timestamp.");
+                }
+                giveEthtoUser();
+            } else {
+                console.log("Request is too old. No update needed.");
+            }
+        } else {
+            console.log("Inserting new IP record.");
+            const { error: insertError } = await supabase
+                .from("ip_requests")
+                .insert([{ ip_address: ip, last_request: now }]);
+
+            if (insertError) {
+                throw new Error("Error logging new IP request.");
+            }
+            giveEthtoUser();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
 
   return (
     <ConnectButton.Custom>
@@ -54,7 +148,7 @@ const WalletConnect = ({
               <div className="flex items-center gap-2">
                 <div
                   className="bg-[#073b4c] flex-center gap-2 font-mono px-4 py-2 rounded-md text-white hover:scale-105 duration-500 cursor-pointer"
-                  onClick={() => setOpenBattleDialog(true)}
+                  onClick={() => setOpenBattleDialog(true)  }
                 >
                   Start a Battle
                   <Image

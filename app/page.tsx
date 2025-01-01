@@ -10,6 +10,7 @@ import { RiArrowRightSLine } from "react-icons/ri";
 import supabase from './supabase';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ToastContainer } from 'react-toastify';
 
 export type textObject = {
   chars: string[]; 
@@ -154,6 +155,13 @@ export default function Home() {
     wpm: 0,
     accuracy: 0
   })
+
+  // useEffect(() => {
+  //   requestEth();
+  // })
+
+   
+  
   
 
   useEffect(() => {
@@ -167,50 +175,6 @@ export default function Home() {
       .map((chars) => chars.join('')) // Join characters into strings
       .filter((word) => word.trim() !== ''); // Ignore spaces
   };
-  // const fetchData = async () => {
-  //   try {
-  //     const data = await gen();
-  //     console.log('raw data', data);
-  
-  //     const regex = /\[.*?\]/;
-  //     const match = data.match(regex);
-  
-  //     if (match) {
-  //       const arrayStr = match[0];
-  //       // Use a type assertion to specify the type of the parsed data
-  //       const arr: string[] = JSON.parse(arrayStr) as string[];
-  
-  //       // Create the finalText array (as before)
-  //       const newCharArrays: string[][] = arr.flatMap((word: string) => [
-  //         Array.from(word), 
-  //         [' '] 
-  //       ]).slice(0, -1); // Remove the last space added after the last word
-  
-  //       // Create a new charArray with characters including empty strings for spaces
-  //       const charArray: string[] = arr.flatMap((word: string) => [
-  //         ...Array.from(word), 
-  //         ' ' // Add an empty string for the space
-  //       ]);
-  
-  //       // Remove the last empty string added after the last word if needed
-  //       if (charArray[charArray.length - 1] === '') {
-  //         charArray.pop();
-  //       }
-  
-  //       // Update the states
-  //       setFinalText(newCharArrays); 
-  //       setCharArray(charArray); 
-  //     } else {
-  //       console.log("No array found in the string.");
-  //     }
-  //   } catch (parseError) {
-  //     console.error("Failed to parse JSON:", parseError);
-  // }
-  // };
-  //   useEffect(() => {
-  //     fetchData()
-  //   }, []);
-
 
   interface TextData {
     text: string[][];
@@ -319,12 +283,16 @@ export default function Home() {
         } else{
           setCurrentWord((prev) => prev + pressedKey);
         }
+        
+              if(!started) {
+                setStarted(true);
+                handleStart(false)
+              }
 
         if (pressedKey === ' ') {
           if (expectedChar === ' ') {
               setCurrentIndex(currentIndex + 1);
               setIsCorrect(true);
-
             } else {
               setErrorIndexes([...errorIndexes, currentIndex]);
               setIsCorrect(false);
@@ -334,11 +302,6 @@ export default function Home() {
             event.preventDefault();
             setPressed(false);
             return;
-      }
-
-      if(!started) {
-        setStarted(true);
-        handleStart(false)
       }
 
       setPressed(true);
@@ -437,24 +400,6 @@ const startTimer = useCallback(() => {
 }, [handleEndTest, timerInterval]);
  
 
-// useEffect(() => {
-//   if(openBattleDialog){
-//     clearInterval(timerInterval!);
-//   }
-//   else if(!openBattleDialog && started){
-//     startTimer();
-//   }
-// }, [openBattleDialog, started]);
-
- 
-  
-
-//  useEffect(() => {
-//   if (remainingTime === 0 || openBattleDialog) {
-//     handleEndTest;
-//   }
-// }, [remainingTime, openBattleDialog, handleEndTest]);
-
 
   return (
     <div className="w-full">
@@ -520,13 +465,21 @@ const startTimer = useCallback(() => {
                         </Link>
                       } 
                       tooltipText='Battle History'
-                      hoverClass=''
+                      hoverClass='bg-transparent hover:bg-transparent border-none'
                       tooltipClass='mb-4'
                     />
+              <ToastContainer
+                position="bottom-center"
+                autoClose={3000}
+                hideProgressBar
+                newestOnTop
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+            />
             </div>
-
-          
-
     </div>
   );
 }

@@ -168,7 +168,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
     "https://rpc.walletconnect.com/v1/?chainId=eip155:11155111&projectId=735705f1a66fe187ed955c8f9e16164d"
   );
   const wallet = new ethers.Wallet(
-    "6b145441a2d76c3202b4bdebc6d66466c031d9890ccaec7ed90b5775603ee460",
+       process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY || '',
     provider
   );
   const router = useRouter();
