@@ -25,8 +25,6 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   const [prizeSent, setPrizeSent] = useState(false);
   const isPlayer1 = params.address == battleDetails?.player1;
   const [isLoading, setIsLoading] = useState(false);
-  const [newBattleDetails, setNewBattleDetails] = useState<BattleDataType>();
-  const [sentResult, setSentResult] = useState(false);
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
   const router = useRouter();
@@ -128,9 +126,6 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
       .eq(isPlayer1 ? "player1" : "player2", params.address);
 
     if (error) console.error("Error updating result:", error);
-    else {
-      setSentResult(true);
-    }
   };
 
   const updateWinner = async (winnerName: string) => {
