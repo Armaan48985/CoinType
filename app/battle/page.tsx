@@ -13,6 +13,7 @@ import PlayerDetails from "@/components/PlayerDetails";
 import { TooltipDemo } from "@/components/self/ToolTip";
 import { PiMoneyWavyBold } from "react-icons/pi";
 import { ResultType } from "../page";
+import finalText from "../data/finalText";
 
 export type ParamType = { battleId: string; address: string };
 
@@ -21,182 +22,7 @@ const BattlePage = () => {
     battleId: "",
     address: "",
   });
-  const [finalText] = useState<string[][]>([
-    ["H", "e", "l", "l", "o"],
-    [" "],
-    ["w", "o", "r", "l", "d"],
-    [" "],
-    ["t", "h", "i", "s"],
-    [" "],
-    ["i", "s"],
-    [" "],
-    ["a"],
-    [" "],
-    ["t", "e", "s", "t"],
-    [" "],
-    ["o", "f"],
-    [" "],
-    ["t", "e", "x", "t"],
-    [" "],
-    ["o", "b", "j", "e", "c", "t", "s"],
-    [" "],
-    ["f", "o", "r"],
-    [" "],
-    ["j", "a", "v", "a"],
-    [" "],
-    ["e", "x", "a", "m", "p", "l", "e"],
-    [" "],
-    ["t", "e", "s", "t", "i", "n", "g"],
-    [" "],
-    ["c", "h", "a", "r", "a", "c", "t", "e", "r", "s"],
-    [" "],
-    ["a", "n", "d"],
-    [" "],
-    ["s", "t", "r", "u", "c", "t", "u", "r", "e"],
-    [" "],
-    ["a", "r", "r", "a", "y"],
-    [" "],
-    ["o", "f"],
-    [" "],
-    ["c", "h", "a", "r", "a", "c", "t", "e", "r", "s"],
-    [" "],
-    ["i", "s"],
-    [" "],
-    ["n", "e", "c", "e", "s", "s", "a", "r", "y"],
-    [" "],
-    ["f", "o", "r"],
-    [" "],
-    ["b", "u", "i", "l", "d", "i", "n", "g"],
-    [" "],
-    ["d", "a", "t", "a"],
-    [" "],
-    ["s", "t", "r", "u", "c", "t", "u", "r", "e", "s"],
-    [" "],
-    ["i", "n"],
-    [" "],
-    ["a", "n", "y"],
-    [" "],
-    ["j", "a", "v", "a"],
-    [" "],
-    ["a", "p", "p", "l", "i", "c", "a", "t", "i", "o", "n"],
-    [" "],
-    ["t", "h", "a", "t"],
-    [" "],
-    ["n", "e", "e", "d", "s"],
-    [" "],
-    ["t", "o"],
-    [" "],
-    ["m", "a", "n", "i", "p", "u", "l", "a", "t", "e"],
-    [" "],
-    ["t", "e", "x", "t"],
-    [" "],
-    ["f", "o", "r"],
-    [" "],
-    ["v", "a", "r", "i", "o", "u", "s"],
-    [" "],
-    ["f", "u", "n", "c", "t", "i", "o", "n", "a", "l", "i", "t", "i", "e", "s"],
-    [" "],
-    ["i", "n"],
-    [" "],
-    ["j", "a", "v", "a"],
-    [" "],
-    ["p", "r", "o", "g", "r", "a", "m", "m", "i", "n", "g"],
-    [" "],
-    ["t", "o", "d", "a", "y"],
-    [" "],
-    ["a", "n", "d"],
-    [" "],
-    ["c", "r", "e", "a", "t", "e"],
-    [" "],
-    ["n", "e", "w"],
-    [" "],
-    ["o", "p", "p", "o", "r", "t", "u", "n", "i", "t", "i", "e", "s"],
-    [" "],
-    ["f", "o", "r"],
-    [" "],
-    ["f", "u", "t", "u", "r", "e"],
-    [" "],
-    ["d", "e", "v", "e", "l", "o", "p", "m", "e", "n", "t"],
-    ["J", "a", "v", "a"],
-    [""],
-    ["i", "s"],
-    [""],
-    ["a"],
-    [""],
-    ["v", "e", "r", "s", "a", "t", "i", "l", "e"],
-    [""],
-    ["p", "r", "o", "g", "r", "a", "m", "m", "i", "n", "g"],
-    [""],
-    ["l", "a", "n", "g", "u", "a", "g", "e"],
-    [""],
-    ["t", "h", "a", "t"],
-    [""],
-    ["i", "s"],
-    [""],
-    ["e", "a", "s", "y"],
-    [""],
-    ["t", "o"],
-    [""],
-    ["l", "e", "a", "r", "n"],
-    [""],
-    ["a", "n", "d"],
-    [""],
-    ["u", "s", "e"],
-    [""],
-    ["f", "o", "r"],
-    [""],
-    ["d", "e", "v", "e", "l", "o", "p", "i", "n", "g"],
-    [""],
-    ["m", "o", "b", "i", "l", "e"],
-    [""],
-    ["a", "n", "d"],
-    [""],
-    ["w", "e", "b"],
-    [""],
-    ["a", "p", "p", "s"],
-    [""],
-    ["o", "f"],
-    [""],
-    ["a", "n", "y"],
-    [""],
-    ["k", "i", "n", "d"],
-    [""],
-    ["T", "h", "e"],
-    [""],
-    ["s", "y", "n", "t", "a", "x"],
-    [""],
-    ["i", "s"],
-    [""],
-    ["s", "i", "m", "p", "l", "e"],
-    [""],
-    ["a", "n", "d"],
-    [""],
-    ["c", "l", "e", "a", "r"],
-    [""],
-    ["w", "h", "i", "l", "e"],
-    [""],
-    ["s", "u", "p", "p", "o", "r", "t", "s"],
-    [""],
-    ["o", "o", "l", "s"],
-    [""],
-    ["l", "i", "k", "e"],
-    [""],
-    ["E", "c", "l", "i", "p", "s", "e"],
-    [""],
-    ["o", "r"],
-    [""],
-    ["I", "N", "T", "E", "L", "L", "I", "J"],
-    [""],
-    ["m", "a", "k", "e", "s"],
-    [""],
-    ["d", "e", "v", "e", "l", "o", "p", "m", "e", "n", "t"],
-    [""],
-    ["e", "a", "s", "y"],
-    [""],
-    ["a", "n", "d"],
-    [""],
-    ["e", "f", "f", "i", "c", "i", "e", "n", "t"],
-  ]);
+  
   const [started] = useState(false);
   const [charArray, setCharArray] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -278,7 +104,7 @@ const BattlePage = () => {
     setKeyPressed(pressedKey);
 
     setTimeout(() => setKeyPressed(null), 100);
-
+    if (event.ctrlKey) return;
     if (pressedKey === "Backspace") {
       event.preventDefault();
       setCurrentWord((prev) => prev.slice(0, -1));
@@ -454,7 +280,7 @@ const BattlePage = () => {
   return (
     <div className="text-white overflow-hidden">
       <div className="w-full flex-between px-10 mt-8 ml-9 py-10">
-        <div>
+        <div className="w-[150px] h-[50px]">
           {!battleStarted && (
             <Button
               onClick={handleStartReady}
@@ -464,7 +290,7 @@ const BattlePage = () => {
                           ${
                             isPlayer2Ready &&
                             params.address != battleDetails?.player1
-                              ? "text-red-500"
+                              ? "hidden"
                               : "animate-start"
                           }`}
             >

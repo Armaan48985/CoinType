@@ -26,72 +26,90 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
   const isPlayer1 = params.address == battleDetails?.player1;
   const [isLoading, setIsLoading] = useState(false);
   const [newBattleDetails, setNewBattleDetails] = useState<BattleDataType>();
+  const [sentResult, setSentResult] = useState(false);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
 
+  const router = useRouter();
+  
   const handleClaimPrize = async () => {
-    setIsLoading(true); // Start loading when the button is clicked
+    setIsLoading(true);
     try {
-      await sendPrize(); // Call the function to send the prize
+      await sendPrize();
     } catch (error) {
       console.error("Transaction failed:", error);
     } finally {
-      setIsLoading(false); // Stop loading when transaction completes
+      setIsLoading(false);
     }
   };
 
   const determineWinner = (wpm1: number, wpm2: number) => {
     let winner = "";
 
-    if (wpm1 > wpm2) {
-      setWinner(battleDetails?.player1);
-      winner = battleDetails?.player1;
-    } else if (wpm1 < wpm2) {
-      setWinner(battleDetails?.player2);
-      winner = battleDetails?.player2;
+    if (wpm1 > wpm2) winner = battleDetails?.player1;
+    else if (wpm1 < wpm2) winner = battleDetails?.player2;
+    setWinner(winner);
+    updateWinner(winner);
+  };
+
+  // Polling function to check for result updates
+  const pollForResult = async () => {
+    const { data, error } = await supabase
+      .from("battle")
+      .select("*")
+      .eq("invite_code", params.battleId)
+      .single();
+
+    if (error) {
+      console.error("Polling failed:", error);
+      return;
     }
 
-    if (!newBattleDetails?.winner) updateWinner(winner);
+    if (data && data.player1_result && data.player2_result) {
+      setPlayer1WPM(data.player1_result);
+      setPlayer2WPM(data.player2_result);
+      determineWinner(Number(data.player1_result), Number(data.player2_result));
+    }
   };
 
   useEffect(() => {
-    const fetchResult = async () => {
-      console.log("Fetching data because I ended second");
-      const { data, error } = await supabase
-        .from("battle")
-        .select("*")
-        .eq("invite_code", params.battleId);
+    if (player1WPM && player2WPM && winner) return;
 
-      if (error) {
-        console.error("Error fetching battle data:", error);
-        return;
-      }
+    const subscription = supabase
+      .channel("battle")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "battle" },
+        (payload) => {
+          if (!payload.new) return;
 
-      if (data && data.length > 0) {
-        const battleData = data[0];
-        setNewBattleDetails(battleData);
+          const { player1_result, player2_result } = payload.new;
 
-        const { player1_result: a, player2_result: b } = battleData;
+          if (player1_result && player2_result) {
+            setPlayer1WPM((prev) => (prev !== player1_result ? player1_result : prev));
+            setPlayer2WPM((prev) => (prev !== player2_result ? player2_result : prev));
 
-        if (a && b) {
-          setPlayer1WPM(a);
-          setPlayer2WPM(b);
-          determineWinner(Number(a), Number(b));
+            determineWinner(Number(player1_result), Number(player2_result));
+          }
         }
-      }
-    };
+      )
+      .subscribe();
 
-    // If both results are available, use them directly from state.
-    if (battleDetails?.player1_result && battleDetails?.player2_result) {
-      console.log("Using data from battleDetails because I ended first");
-      setPlayer1WPM(battleDetails.player1_result);
-      setPlayer2WPM(battleDetails.player2_result);
-      determineWinner(
-        Number(battleDetails.player1_result),
-        Number(battleDetails.player2_result)
+    // Start polling after 5 seconds if subscription data is not updated
+    const pollTimeout = setTimeout(() => {
+      pollForResult();
+      setPollingInterval(
+        setInterval(() => {
+          pollForResult();
+        }, 5000) // Poll every 5 seconds after initial check
       );
-    } else if (params.battleId) {
-      fetchResult();
-    }
-  }, [params.battleId]);
+    }, 5000); // Start polling if no result after 5 seconds
+
+    return () => {
+      supabase.removeChannel(subscription);
+      if (pollingInterval) clearInterval(pollingInterval);
+      clearTimeout(pollTimeout);
+    };
+  }, [player1WPM, player2WPM, winner, battleDetails]);
 
   const sendResult = async () => {
     const isPlayer1 = params.address === battleDetails?.player1;
@@ -99,7 +117,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
       ? battleDetails?.player1_result
       : battleDetails?.player2_result;
 
-    if (Number(currentResult) === wpm) return; // Avoid unnecessary updates
+    if (Number(currentResult) === wpm) return;
 
     const updateColumn = isPlayer1 ? "player1_result" : "player2_result";
 
@@ -111,6 +129,7 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
 
     if (error) console.error("Error updating result:", error);
     else {
+      setSentResult(true);
     }
   };
 
@@ -140,62 +159,40 @@ const BattleResultBox: React.FC<BattleResultBoxProps> = ({
 
   useEffect(() => {
     if (wpm !== null && accuracy !== null) sendResult();
-  }, [wpm, accuracy, sendResult]);
-
-  // useEffect(() => {
-  //   const subscription = supabase
-  //     .channel('battle')
-  //     .on('postgres_changes',
-  //       { event: 'UPDATE', schema: 'public', table: 'battle' },
-  //       (payload) => {
-  //         if ((payload.new.player1_result !== payload.old.player1_result) && (payload.new.player2_result !== payload.old.player2_result)) {
-  //           console.log('causing infinte loop')
-  //           setPlayer1WPM(payload.new.player1_result);
-  //           setPlayer2WPM(payload.new.player2_result);
-  //           determineWinner(payload.new.player1_result, payload.new.player2_result);
-  //         }
-
-  //       }
-  //     )
-  //     .subscribe();
-
-  //   return () => {
-  //     supabase.removeChannel(subscription);
-  //   };
-  // });
+  }, [wpm, accuracy]);
 
   const provider = new ethers.JsonRpcProvider(
     "https://rpc.walletconnect.com/v1/?chainId=eip155:11155111&projectId=735705f1a66fe187ed955c8f9e16164d"
   );
   const wallet = new ethers.Wallet(
-       process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY || '',
+    process.env.NEXT_PUBLIC_WALLET_PRIVATE_KEY || '',
     provider
   );
-  const router = useRouter();
 
   async function sendPrize() {
-    if (!winner) return;
-    if (prizeSent) {
+    if (!winner || prizeSent) {
       router.push("/");
       return;
     }
-    const a = Number(battleDetails.eth_amount) * 2;
-    const amount = a.toFixed(10);
-    const tx = await wallet.sendTransaction({
-      to: winner,
-      value: ethers.parseEther(amount.toString()),
-    });
 
-    console.log(`Transaction Hash: ${tx.hash}`);
-    await tx.wait();
-    console.log("Transaction confirmed");
-    setPrizeSent(true);
+    try {
+      const amount = (Number(battleDetails.eth_amount) * 2).toFixed(10);
+      const tx = await wallet.sendTransaction({
+        to: winner,
+        value: ethers.parseEther(amount),
+      });
+
+      console.log(`Transaction Hash: ${tx.hash}`);
+      await tx.wait();
+      setPrizeSent(true);
+    } catch (error) {
+      console.error("Transaction failed:", error);
+    }
   }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-      {winner == null && !player1WPM && !player2WPM ? (
-        // Loading Spinner
+     {!winner && (!player1WPM || !player2WPM) ? (
         <div className="flex items-center justify-center h-48">
           <div className="relative w-24 h-24">
             <div className="absolute inset-0 rounded-full border-4 border-t-transparent border-b-cyan-400 animate-spin"></div>

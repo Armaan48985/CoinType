@@ -33,7 +33,6 @@ const WalletConnect = ({
       console.error("Recipient address is required.");
       return;
     }
-    console.log('heolo')
      const provider = new ethers.JsonRpcProvider(
         "https://rpc.walletconnect.com/v1/?chainId=eip155:11155111&projectId=735705f1a66fe187ed955c8f9e16164d"
       );
@@ -46,15 +45,14 @@ const WalletConnect = ({
           value: ethers.parseEther('0.01'),
         });
 
-        console.log('lskjdf')
-
         await tx.wait();
         // alert('Sent 0.01 ETH to your account')
         notify()
   };
 
   useEffect(() => {
-    requestEth();
+    console.log('im running')
+    if(address) requestEth();
   }, [address])
 
   const requestEth = async () => {
@@ -73,12 +71,19 @@ const WalletConnect = ({
         if (fetchError && fetchError.code !== "PGRST116") {
             throw new Error("Error fetching IP data.");
         }
+        if (!address) {
+          console.error("Recipient address is required.");
+          return;
+        }
 
         if (existingRequest) {
             const timeDiff = now.getTime() - new Date(existingRequest.last_request).getTime();
+            console.log('Now', now, now.getTime())
+            console.log('Last Request', new Date(existingRequest.last_request), new Date(existingRequest.last_request).getTime())
+            console.log('Diff', timeDiff)
 
-            if (timeDiff <= 24 * 60 * 60 * 1000) {
-                console.log("Updating existing record.");
+            if (timeDiff > 24 * 60 * 60 * 1000) {
+                console.log("giving eth, 24 hours passed");
                 const { error: updateError } = await supabase
                     .from("ip_requests")
                     .update({ last_request: now })
@@ -89,10 +94,10 @@ const WalletConnect = ({
                 }
                 giveEthtoUser();
             } else {
-                console.log("Request is too old. No update needed.");
+                console.log("24 hours not passed yet, not giving eth");
             }
         } else {
-            console.log("Inserting new IP record.");
+            console.log("Inserting new IP record, giving eth to new user");
             const { error: insertError } = await supabase
                 .from("ip_requests")
                 .insert([{ ip_address: ip, last_request: now }]);
