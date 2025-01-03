@@ -6,6 +6,8 @@ import { useAccount } from 'wagmi'
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Chart, ChartDataset, TooltipItem, ChartOptions, ChartData } from 'chart.js';
 import supabase from '../supabase'
+import { IoMdArrowBack } from 'react-icons/io'
+import Link from 'next/link'
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -353,7 +355,13 @@ const Page = () => {
                             </div>
                         </div>                 
                     </div>
-                </div>         
+                </div>       
+
+                <Link href='/'>
+                  <div className="absolute top-6 left-6 p-4 rounded-full bg-gray-800 hover:bg-gray-700 text-white cursor-pointer shadow-md transition-all">
+                    <IoMdArrowBack className="text-xl" />
+                  </div>
+              </Link>
             </div>
   )
 }

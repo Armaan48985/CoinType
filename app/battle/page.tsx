@@ -169,13 +169,18 @@ const BattlePage = () => {
   useEffect(() => {
     if (showResult) {
       if (correctWordCount > 0 && typedWords.length > 0) {
-        const wpm = typedCharactersCount / 5 / (selectedTime / 60);
         const correctCharCount = typedCharactersCount - errorIndexes.length;
+        const wpm = (correctCharCount) / 5 / (selectedTime / 60);
         const accuracy = Math.round(
           (correctCharCount / typedCharactersCount) * 100
         );
+        if(!wpm) {
+          setResult({wpm: 0, accuracy: 0})
+          return;
+        }
         setResult({ wpm, accuracy });
       } else {
+        setResult({wpm: 0, accuracy: 0})
         console.log("No words typed or no correct words");
       }
     }
